@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Laos GIS Mapper Pro</title>
     
     <!-- Leaflet -->
@@ -45,6 +45,9 @@
             --border: #334155;
             --measure-active: #f59e0b;
             --measure-bg: rgba(245, 158, 11, 0.15);
+            --gps-active: #22c55e;
+            --gps-bg: rgba(34, 197, 94, 0.15);
+            --gps-pulse: rgba(34, 197, 94, 0.4);
         }
 
         body {
@@ -53,9 +56,10 @@
             color: var(--text-primary);
             overflow: hidden;
             height: 100vh;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Loading Screen - FAST & RELIABLE */
+        /* Loading Screen */
         #loader {
             position: fixed;
             inset: 0;
@@ -127,7 +131,7 @@
         }
 
         /* ============================================
-           HEADER & TOOLBAR - DESKTOP FULL, MOBILE MENU
+           HEADER WITH CAMPUS SYMBOL
            ============================================ */
         .header {
             height: 56px;
@@ -164,7 +168,74 @@
             font-weight: 600;
         }
 
-        /* --- DESKTOP TOOLBAR (visible on desktop) --- */
+        /* --- CAMPUS SYMBOL (Top Right Corner) --- */
+        .campus-symbol {
+            position: fixed;
+            top: 8px;
+            right: 8px;
+            z-index: 10001;
+            width: 40px;
+            height: 40px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 12px rgba(56, 189, 248, 0.3);
+        }
+
+        .campus-symbol:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(56, 189, 248, 0.5);
+        }
+
+        .campus-symbol svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--accent);
+        }
+
+        .campus-tooltip {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            min-width: 180px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: all 0.2s;
+            pointer-events: none;
+        }
+
+        .campus-symbol:hover .campus-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .campus-tooltip-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+        }
+
+        .campus-tooltip-text {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Desktop Toolbar */
         .toolbar {
             display: flex;
             align-items: center;
@@ -240,7 +311,7 @@
             font-weight: 500;
         }
 
-        /* --- MOBILE MENU (hidden on desktop) --- */
+        /* Mobile Menu Button */
         .mobile-menu-btn {
             display: none;
             background: var(--bg-secondary);
@@ -838,6 +909,113 @@
             width: 100%;
         }
 
+        /* ============================================
+           GPS STATUS INDICATOR (Smartphone)
+           ============================================ */
+        .gps-status-bar {
+            position: absolute;
+            top: 12px;
+            right: 56px;
+            z-index: 450;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+
+        .gps-status-bar.visible {
+            display: flex;
+        }
+
+        .gps-indicator {
+            position: relative;
+            width: 14px;
+            height: 14px;
+        }
+
+        .gps-indicator-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--gps-active);
+            border: 2px solid white;
+        }
+
+        .gps-indicator.pulsing .gps-indicator-dot {
+            animation: gpsPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes gpsPulse {
+            0% { box-shadow: 0 0 0 0 var(--gps-pulse); }
+            70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        .gps-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+
+        .gps-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .gps-coords {
+            font-family: 'SF Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--gps-active);
+            font-weight: 600;
+        }
+
+        .gps-accuracy {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        /* GPS FAB (Floating Action Button) for mobile */
+        .gps-fab {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            z-index: 450;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 3px solid white;
+            color: var(--bg-primary);
+            font-size: 1.5rem;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
+            transition: all 0.2s;
+        }
+
+        .gps-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 24px rgba(56, 189, 248, 0.6);
+        }
+
+        .gps-fab.active {
+            background: var(--gps-active);
+            box-shadow: 0 4px 16px rgba(34, 197, 94, 0.4);
+        }
+
+        .gps-fab.active:hover {
+            box-shadow: 0 6px 24px rgba(34, 197, 94, 0.6);
+        }
+
         /* Measurement Overlay on Map */
         .measure-overlay {
             position: absolute;
@@ -1204,6 +1382,29 @@
             .header-title {
                 display: none;
             }
+            
+            /* Show GPS FAB on mobile */
+            .gps-fab {
+                display: flex;
+            }
+            
+            /* Show GPS status bar on mobile */
+            .gps-status-bar.visible {
+                display: flex;
+            }
+            
+            /* Adjust campus symbol position for mobile */
+            .campus-symbol {
+                top: 66px;
+                right: 12px;
+                width: 36px;
+                height: 36px;
+            }
+            
+            .campus-symbol svg {
+                width: 20px;
+                height: 20px;
+            }
         }
 
         /* Mobile specific adjustments */
@@ -1231,6 +1432,26 @@
             
             .mobile-menu-item {
                 padding: 0.85rem;
+            }
+            
+            /* GPS status bar adjustments */
+            .gps-status-bar {
+                top: 66px;
+                right: 56px;
+                left: 12px;
+                right: auto;
+                max-width: calc(100% - 120px);
+            }
+        }
+
+        /* Very small screens */
+        @media (max-width: 380px) {
+            .gps-status-bar {
+                padding: 0.4rem 0.6rem;
+            }
+            
+            .gps-coords {
+                font-size: 0.7rem;
             }
         }
 
@@ -1268,6 +1489,34 @@
 
         .leaflet-popup-close-button:hover {
             color: var(--text-primary) !important;
+        }
+
+        /* GPS Marker on Map */
+        .gps-marker-icon {
+            width: 20px;
+            height: 20px;
+            background: var(--gps-active);
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px var(--gps-pulse), 0 2px 8px rgba(0,0,0,0.4);
+            animation: gpsMarkerPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes gpsMarkerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .gps-marker-heading {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 10px solid var(--gps-active);
         }
 
         /* Measurement Styles on Map */
@@ -1382,6 +1631,20 @@
         <div class="loader-bar"></div>
     </div>
 
+    <!-- CAMPUS SYMBOL (Fixed Top Right) -->
+    <div class="campus-symbol" id="campusSymbol" title="Laos GIS Mapper Pro">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7v2h20V7L12 2zm0 2.5L18.5 7H5.5L12 4.5zM4 10v10H2v2h20v-2h-2V10H4zm2 2h4v8H6v-8zm6 0h6v8h-6v-8z"/>
+        </svg>
+        <div class="campus-tooltip">
+            <div class="campus-tooltip-title">🏛️ Laos GIS Mapper Pro</div>
+            <div class="campus-tooltip-text">
+                Professional GIS mapping tool for Laos.<br>
+                Version 2.0 • Built with Leaflet
+            </div>
+        </div>
+    </div>
+
     <!-- App -->
     <div id="app">
         <!-- Header -->
@@ -1391,9 +1654,8 @@
                 <span class="header-title">Laos GIS Mapper Pro</span>
             </div>
 
-            <!-- DESKTOP: Full Toolbar (hidden on mobile) -->
+            <!-- Desktop Toolbar -->
             <div class="toolbar" id="desktopToolbar">
-                <!-- Measure Group -->
                 <div class="toolbar-group">
                     <span class="toolbar-label">Measure</span>
                     <button class="tool-btn" id="btnMeasureDistance" onclick="toggleMeasureMode('distance')" title="Measure Distance (M)">
@@ -1410,7 +1672,6 @@
                     </button>
                 </div>
 
-                <!-- Tools Group -->
                 <div class="toolbar-group">
                     <span class="toolbar-label">Tools</span>
                     <button class="tool-btn" onclick="showImportModal()" title="Import Data (Ctrl+I)">
@@ -1427,7 +1688,6 @@
                     </button>
                 </div>
 
-                <!-- View Group -->
                 <div class="toolbar-group">
                     <span class="toolbar-label">View</span>
                     <button class="tool-btn" onclick="resetToLaos()" title="Center Laos (H)">
@@ -1441,7 +1701,7 @@
                 </div>
             </div>
 
-            <!-- MOBILE: Hamburger Menu Button (hidden on desktop) -->
+            <!-- Mobile Menu Button -->
             <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">
                 <span>☰</span>
                 <span style="font-size:0.7rem;font-weight:600;">Menu</span>
@@ -1454,9 +1714,8 @@
             </div>
         </header>
 
-        <!-- MOBILE: Dropdown Menu (hidden on desktop) -->
+        <!-- Mobile Dropdown Menu -->
         <div class="mobile-menu" id="mobileMenu">
-            <!-- Measure Section -->
             <div class="mobile-menu-section">
                 <div class="mobile-menu-title">📐 Measure</div>
                 <div class="mobile-menu-item" id="mmMeasureDistance" onclick="mobileMenuAction('distance')">
@@ -1476,7 +1735,6 @@
                 </div>
             </div>
 
-            <!-- Tools Section -->
             <div class="mobile-menu-section">
                 <div class="mobile-menu-title">🛠️ Tools</div>
                 <div class="mobile-menu-item" onclick="mobileMenuAction('import')">
@@ -1496,7 +1754,6 @@
                 </div>
             </div>
 
-            <!-- View Section -->
             <div class="mobile-menu-section">
                 <div class="mobile-menu-title">👁️ View</div>
                 <div class="mobile-menu-item" onclick="mobileMenuAction('laos')">
@@ -1521,6 +1778,40 @@
                 </div>
                 
                 <div class="sidebar-content">
+                    <!-- GPS Status Panel (visible in sidebar always) -->
+                    <div class="sidebar-section" id="gpsSidebarSection">
+                        <div class="section-title">📡 GPS Status</div>
+                        <div class="coord-panel">
+                            <div class="coord-row">
+                                <span class="coord-label">Status</span>
+                                <span class="status-badge" id="gpsStatusBadge" style="background: rgba(239,68,68,0.15); color: var(--danger);">
+                                    <span class="status-dot" id="gpsStatusDot" style="background: var(--danger); animation: none;"></span>
+                                    <span id="gpsStatusText">Off</span>
+                                </span>
+                            </div>
+                            <div class="coord-row">
+                                <span class="coord-label">My Latitude</span>
+                                <span class="coord-value" id="gpsLat">--</span>
+                            </div>
+                            <div class="coord-row">
+                                <span class="coord-label">My Longitude</span>
+                                <span class="coord-value" id="gpsLng">--</span>
+                            </div>
+                            <div class="coord-row">
+                                <span class="coord-label">Accuracy</span>
+                                <span class="coord-value" id="gpsAccuracy">--</span>
+                            </div>
+                            <div class="coord-row">
+                                <span class="coord-label">Speed</span>
+                                <span class="coord-value" id="gpsSpeed">--</span>
+                            </div>
+                            <div class="coord-row">
+                                <span class="coord-label">Heading</span>
+                                <span class="coord-value" id="gpsHeading">--</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Measurement Panel -->
                     <div class="sidebar-section" id="measureSection" style="display:none;">
                         <div class="section-title">📐 Measurement</div>
@@ -1697,6 +1988,23 @@
             <div class="map-wrapper">
                 <div id="map"></div>
                 
+                <!-- GPS Status Bar (Mobile Only) -->
+                <div class="gps-status-bar" id="gpsStatusBar">
+                    <div class="gps-indicator pulsing" id="gpsIndicator">
+                        <div class="gps-indicator-dot"></div>
+                    </div>
+                    <div class="gps-info">
+                        <span class="gps-label">My Location</span>
+                        <span class="gps-coords" id="gpsBarCoords">--, --</span>
+                        <span class="gps-accuracy" id="gpsBarAccuracy">Accuracy: --</span>
+                    </div>
+                </div>
+
+                <!-- GPS FAB (Floating Action Button - Mobile Only) -->
+                <button class="gps-fab" id="gpsFab" onclick="centerOnGPS()" title="Center on my location">
+                    📍
+                </button>
+
                 <!-- Measurement Overlay -->
                 <div class="measure-overlay" id="measureOverlay">
                     <div class="measure-overlay-stat">
@@ -1901,6 +2209,16 @@
         let selectedCRS = 'EPSG:4326';
         let toastId = 0;
 
+        // GPS State
+        let gpsState = {
+            active: false,
+            watchId: null,
+            currentPosition: null,
+            mapMarker: null,
+            accuracyCircle: null,
+            heading: null
+        };
+
         // Measurement State
         let measureMode = {
             active: false,
@@ -1915,7 +2233,7 @@
         let measureHistory = [];
 
         // ============================================
-        // RELIABLE FAST INITIALIZATION - NO HANG
+        // RELIABLE FAST INITIALIZATION
         // ============================================
         
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
@@ -1949,6 +2267,11 @@
             initDragDrop();
             setupContextMenu();
             
+            // Auto-start GPS on mobile
+            if (isMobile()) {
+                startGPS();
+            }
+            
             const loader = document.getElementById('loader');
             if (loader) {
                 loader.style.opacity = '0';
@@ -1957,7 +2280,11 @@
                 }, 300);
             }
             
-            showToast('success', 'Ready', 'Laos GIS Mapper loaded. Use toolbar to measure distance/area or pick coordinates.');
+            showToast('success', 'Ready', 'Laos GIS Mapper loaded. GPS auto-enabled on mobile.');
+        }
+
+        function isMobile() {
+            return window.innerWidth <= 900 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
 
         // ============================================
@@ -2003,9 +2330,7 @@
             }
         }
 
-        // Update mobile menu active states to match desktop
         function updateMobileMenuState() {
-            // Distance
             const mmDist = document.getElementById('mmMeasureDistance');
             const btnDist = document.getElementById('btnMeasureDistance');
             if (mmDist && btnDist) {
@@ -2014,7 +2339,6 @@
                     : 'mobile-menu-item';
             }
             
-            // Area
             const mmArea = document.getElementById('mmMeasureArea');
             const btnArea = document.getElementById('btnMeasureArea');
             if (mmArea && btnArea) {
@@ -2023,7 +2347,6 @@
                     : 'mobile-menu-item';
             }
             
-            // Coordinate
             const mmCoord = document.getElementById('mmMeasureCoord');
             const btnCoord = document.getElementById('btnMeasureCoord');
             if (mmCoord && btnCoord) {
@@ -2032,13 +2355,201 @@
                     : 'mobile-menu-item';
             }
             
-            // Track
             const mmTrack = document.getElementById('mmTrackToggle');
             const btnTrack = document.getElementById('btnTrackToggle');
             if (mmTrack && btnTrack) {
                 mmTrack.className = btnTrack.classList.contains('active') 
                     ? 'mobile-menu-item active' 
                     : 'mobile-menu-item';
+            }
+        }
+
+        // ============================================
+        // GPS FUNCTIONS (Persistent Location)
+        // ============================================
+        function startGPS() {
+            if (!navigator.geolocation) {
+                updateGPSStatus('error', 'GPS not supported');
+                return;
+            }
+
+            gpsState.active = true;
+            updateGPSStatus('searching', 'Searching...');
+
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            };
+
+            gpsState.watchId = navigator.geolocation.watchPosition(
+                (pos) => {
+                    handleGPSUpdate(pos);
+                },
+                (err) => {
+                    console.warn('GPS error:', err);
+                    updateGPSStatus('error', 'GPS Error');
+                },
+                options
+            );
+        }
+
+        function stopGPS() {
+            gpsState.active = false;
+            if (gpsState.watchId !== null) {
+                navigator.geolocation.clearWatch(gpsState.watchId);
+                gpsState.watchId = null;
+            }
+            if (gpsState.mapMarker) {
+                map.removeLayer(gpsState.mapMarker);
+                gpsState.mapMarker = null;
+            }
+            if (gpsState.accuracyCircle) {
+                map.removeLayer(gpsState.accuracyCircle);
+                gpsState.accuracyCircle = null;
+            }
+            updateGPSStatus('off', 'Off');
+            hideGPSBar();
+        }
+
+        function handleGPSUpdate(position) {
+            const { latitude, longitude, accuracy, speed, heading } = position.coords;
+            gpsState.currentPosition = { lat: latitude, lng: longitude, accuracy, speed, heading };
+            
+            // Update sidebar
+            document.getElementById('gpsLat').textContent = latitude.toFixed(6);
+            document.getElementById('gpsLng').textContent = longitude.toFixed(6);
+            document.getElementById('gpsAccuracy').textContent = accuracy ? `±${accuracy.toFixed(0)}m` : '--';
+            document.getElementById('gpsSpeed').textContent = speed ? `${(speed * 3.6).toFixed(1)} km/h` : '--';
+            document.getElementById('gpsHeading').textContent = heading ? `${heading.toFixed(0)}°` : '--';
+            
+            // Update status
+            updateGPSStatus('active', 'Active');
+            
+            // Update mobile status bar
+            updateGPSBar(latitude, longitude, accuracy);
+            
+            // Update map marker
+            updateGPSMapMarker(latitude, longitude, accuracy, heading);
+            
+            // Update FAB
+            const fab = document.getElementById('gpsFab');
+            if (fab) fab.classList.add('active');
+        }
+
+        function updateGPSStatus(status, text) {
+            const badge = document.getElementById('gpsStatusBadge');
+            const dot = document.getElementById('gpsStatusDot');
+            const label = document.getElementById('gpsStatusText');
+            
+            if (!badge || !dot || !label) return;
+            
+            label.textContent = text;
+            
+            switch(status) {
+                case 'active':
+                    badge.style.background = 'rgba(34, 197, 94, 0.15)';
+                    badge.style.color = 'var(--success)';
+                    dot.style.background = 'var(--success)';
+                    dot.style.animation = 'blink 2s infinite';
+                    break;
+                case 'searching':
+                    badge.style.background = 'rgba(245, 158, 11, 0.15)';
+                    badge.style.color = 'var(--warning)';
+                    dot.style.background = 'var(--warning)';
+                    dot.style.animation = 'blink 1s infinite';
+                    break;
+                case 'error':
+                    badge.style.background = 'rgba(239, 68, 68, 0.15)';
+                    badge.style.color = 'var(--danger)';
+                    dot.style.background = 'var(--danger)';
+                    dot.style.animation = 'none';
+                    break;
+                case 'off':
+                    badge.style.background = 'rgba(239, 68, 68, 0.15)';
+                    badge.style.color = 'var(--danger)';
+                    dot.style.background = 'var(--danger)';
+                    dot.style.animation = 'none';
+                    break;
+            }
+        }
+
+        function updateGPSBar(lat, lng, accuracy) {
+            const bar = document.getElementById('gpsStatusBar');
+            const coords = document.getElementById('gpsBarCoords');
+            const acc = document.getElementById('gpsBarAccuracy');
+            
+            if (bar) bar.classList.add('visible');
+            if (coords) coords.textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+            if (acc) acc.textContent = accuracy ? `±${accuracy.toFixed(0)}m` : 'Accuracy: --';
+        }
+
+        function hideGPSBar() {
+            const bar = document.getElementById('gpsStatusBar');
+            if (bar) bar.classList.remove('visible');
+            
+            const fab = document.getElementById('gpsFab');
+            if (fab) fab.classList.remove('active');
+        }
+
+        function updateGPSMapMarker(lat, lng, accuracy, heading) {
+            const latlng = L.latLng(lat, lng);
+            
+            // Remove old
+            if (gpsState.mapMarker) {
+                map.removeLayer(gpsState.mapMarker);
+            }
+            if (gpsState.accuracyCircle) {
+                map.removeLayer(gpsState.accuracyCircle);
+            }
+            
+            // Accuracy circle
+            if (accuracy) {
+                gpsState.accuracyCircle = L.circle(latlng, {
+                    radius: accuracy,
+                    color: '#22c55e',
+                    weight: 1,
+                    fillColor: '#22c55e',
+                    fillOpacity: 0.1
+                }).addTo(map);
+            }
+            
+            // Custom marker with heading
+            const headingHtml = heading ? `<div class="gps-marker-heading" style="transform: rotate(${heading}deg); transform-origin: bottom center;"></div>` : '';
+            gpsState.mapMarker = L.marker(latlng, {
+                icon: L.divIcon({
+                    className: 'gps-marker-container',
+                    html: `
+                        <div class="gps-marker-icon">
+                            ${headingHtml}
+                        </div>
+                    `,
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                }),
+                zIndexOffset: 1000
+            }).addTo(map);
+            
+            gpsState.mapMarker.bindPopup(`
+                <div style="min-width:180px;">
+                    <h4 style="margin:0 0 0.5rem 0;color:#22c55e;">📍 My Location</h4>
+                    <p style="margin:0.25rem 0;font-size:0.85rem;">
+                        <b>Lat:</b> ${lat.toFixed(6)}<br>
+                        <b>Lng:</b> ${lng.toFixed(6)}<br>
+                        <b>Accuracy:</b> ±${accuracy ? accuracy.toFixed(0) : '--'}m<br>
+                        <b>Speed:</b> ${gpsState.currentPosition?.speed ? (gpsState.currentPosition.speed * 3.6).toFixed(1) : '--'} km/h
+                    </p>
+                </div>
+            `);
+        }
+
+        function centerOnGPS() {
+            if (gpsState.currentPosition) {
+                const { lat, lng } = gpsState.currentPosition;
+                map.setView([lat, lng], 16);
+                showToast('info', 'GPS Centered', `Centered on your location`);
+            } else {
+                showToast('warning', 'No GPS', 'Waiting for GPS signal...');
             }
         }
 
@@ -2697,7 +3208,7 @@
         }
 
         // ============================================
-        // GPS TRACKING
+        // GPS TRACKING (Recording Mode)
         // ============================================
         function toggleTracking() {
             if (tracking.active) {
@@ -3283,7 +3794,6 @@
         // ============================================
         function setupContextMenu() {
             document.addEventListener('click', (e) => {
-                // Close mobile menu when clicking outside
                 const menu = document.getElementById('mobileMenu');
                 const btn = document.getElementById('mobileMenuBtn');
                 if (menu && menu.classList.contains('active') && 
