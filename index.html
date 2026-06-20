@@ -48,8 +48,6 @@
             --gps-active: #22c55e;
             --gps-bg: rgba(34, 197, 94, 0.15);
             --gps-pulse: rgba(34, 197, 94, 0.4);
-            --campus-gold: #fbbf24;
-            --campus-gold-glow: rgba(251, 191, 36, 0.3);
         }
 
         body {
@@ -133,7 +131,7 @@
         }
 
         /* ============================================
-           HEADER
+           HEADER WITH CAMPUS SYMBOL
            ============================================ */
         .header {
             height: 56px;
@@ -170,148 +168,71 @@
             font-weight: 600;
         }
 
-        /* ============================================
-           CAMPUS SYMBOL - REMAKE (Top Right Corner)
-           ============================================ */
-        .campus-symbol {
+        /* --- CAMPUS SYMBOL (Top Right Corner) --- */
+        .compass-symbol {
             position: fixed;
-            top: 66px;
-            right: 12px;
+            top: 8px;
+            right: 8px;
             z-index: 10001;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .campus-icon-wrapper {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-            border: 2px solid var(--campus-gold);
-            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 16px var(--campus-gold-glow), 0 0 0 1px rgba(251, 191, 36, 0.2);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 12px rgba(56, 189, 248, 0.3);
         }
 
-        .campus-icon-wrapper::before {
-            content: '';
+        .compass-symbol:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(56, 189, 248, 0.5);
+        }
+
+        .compass-symbol svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--accent);
+        }
+
+        .compass-tooltip {
             position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, transparent 60%);
-            border-radius: 10px;
-        }
-
-        .campus-symbol:hover .campus-icon-wrapper {
-            transform: scale(1.08) rotate(-3deg);
-            box-shadow: 0 6px 24px var(--campus-gold-glow), 0 0 0 2px rgba(251, 191, 36, 0.4);
-        }
-
-        .campus-icon-wrapper svg {
-            width: 28px;
-            height: 28px;
-            fill: var(--campus-gold);
-            filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.5));
-            position: relative;
-            z-index: 1;
-        }
-
-        .campus-label {
-            margin-top: 4px;
-            font-size: 0.6rem;
-            font-weight: 700;
-            color: var(--campus-gold);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            text-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
-            background: rgba(15, 23, 42, 0.8);
-            padding: 2px 6px;
-            border-radius: 4px;
-            border: 1px solid rgba(251, 191, 36, 0.3);
-        }
-
-        .campus-tooltip {
-            position: absolute;
-            top: 0;
-            right: 58px;
+            top: 50px;
+            right: 0;
             background: var(--bg-secondary);
-            border: 1px solid var(--campus-gold);
-            border-radius: 10px;
-            padding: 1rem;
-            min-width: 220px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(251, 191, 36, 0.2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            min-width: 180px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
             opacity: 0;
             visibility: hidden;
-            transform: translateX(10px);
-            transition: all 0.25s ease;
+            transform: translateY(-8px);
+            transition: all 0.2s;
             pointer-events: none;
         }
 
-        .campus-symbol:hover .campus-tooltip {
+        .compass-symbol:hover .compass-tooltip {
             opacity: 1;
             visibility: visible;
-            transform: translateX(0);
+            transform: translateY(0);
             pointer-events: auto;
         }
 
-        .campus-tooltip-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .campus-tooltip-icon {
-            font-size: 1.2rem;
-        }
-
-        .campus-tooltip-title {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--campus-gold);
-        }
-
-        .campus-tooltip-text {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        .campus-tooltip-stats {
-            margin-top: 0.5rem;
-            padding-top: 0.5rem;
-            border-top: 1px solid var(--border);
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.4rem;
-        }
-
-        .campus-stat {
-            text-align: center;
-            padding: 0.3rem;
-            background: var(--bg-primary);
-            border-radius: 6px;
-        }
-
-        .campus-stat-value {
-            font-family: 'SF Mono', monospace;
+        .compass-tooltip-title {
             font-size: 0.8rem;
             font-weight: 700;
-            color: var(--campus-gold);
+            color: var(--accent);
+            margin-bottom: 0.25rem;
         }
 
-        .campus-stat-label {
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
+        .compass-tooltip-text {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
         }
 
         /* Desktop Toolbar */
@@ -566,7 +487,7 @@
 
         /* Sidebar */
         .sidebar {
-            width: 360px;
+            width: 340px;
             background: rgba(15, 23, 42, 0.98);
             border-right: 1px solid var(--border);
             display: flex;
@@ -604,7 +525,7 @@
         }
 
         .sidebar-section {
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
         }
 
         .section-title {
@@ -612,216 +533,11 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--text-muted);
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.75rem;
             font-weight: 700;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-        }
-
-        /* ============================================
-           DETAIL PANEL (New)
-           ============================================ */
-        .detail-panel {
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-            margin-bottom: 1rem;
-        }
-
-        .detail-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.6rem 0.75rem;
-            background: rgba(56, 189, 248, 0.05);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .detail-header-title {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--accent);
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .detail-header-actions {
-            display: flex;
-            gap: 0.25rem;
-        }
-
-        .detail-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 0.85rem;
-            padding: 0.2rem;
-            border-radius: 4px;
-            transition: all 0.15s;
-        }
-
-        .detail-btn:hover {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-        }
-
-        .detail-body {
-            padding: 0.6rem 0.75rem;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.35rem 0;
-            border-bottom: 1px solid rgba(51, 65, 85, 0.3);
-            font-size: 0.8rem;
-        }
-
-        .detail-row:last-child {
-            border-bottom: none;
-        }
-
-        .detail-label {
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .detail-value {
-            font-family: 'SF Mono', 'Courier New', monospace;
-            color: var(--text-primary);
-            font-weight: 600;
-            text-align: right;
-        }
-
-        .detail-value.accent {
-            color: var(--accent);
-        }
-
-        .detail-value.success {
-            color: var(--success);
-        }
-
-        .detail-value.warning {
-            color: var(--warning);
-        }
-
-        .detail-timestamp {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-align: right;
-            padding: 0.3rem 0.75rem;
-            background: var(--bg-primary);
-            border-top: 1px solid var(--border);
-        }
-
-        /* Saved Items List */
-        .saved-list {
-            max-height: 250px;
-            overflow-y: auto;
-        }
-
-        .saved-item {
-            background: var(--bg-primary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 0.6rem 0.75rem;
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-        }
-
-        .saved-item:hover {
-            border-color: var(--accent);
-            background: rgba(56, 189, 248, 0.05);
-        }
-
-        .saved-item-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.3rem;
-        }
-
-        .saved-item-type {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            padding: 0.15rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .saved-item-type.point {
-            background: rgba(56, 189, 248, 0.15);
-            color: var(--accent);
-        }
-
-        .saved-item-type.distance {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--measure-active);
-        }
-
-        .saved-item-type.area {
-            background: rgba(168, 85, 247, 0.15);
-            color: #a855f7;
-        }
-
-        .saved-item-type.track {
-            background: rgba(34, 197, 94, 0.15);
-            color: var(--success);
-        }
-
-        .saved-item-actions {
-            display: flex;
-            gap: 0.15rem;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .saved-item:hover .saved-item-actions {
-            opacity: 1;
-        }
-
-        .saved-item-title {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.2rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .saved-item-summary {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .saved-item-stat {
-            display: flex;
-            align-items: center;
-            gap: 0.2rem;
-        }
-
-        .saved-item-time {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            margin-top: 0.3rem;
         }
 
         /* Measurement Panel */
@@ -882,6 +598,71 @@
         .measure-actions .btn {
             flex: 1;
             justify-content: center;
+        }
+
+        /* Measurement History */
+        .measure-history {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .measure-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0.6rem;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            margin-bottom: 0.4rem;
+            border: 1px solid var(--border);
+            font-size: 0.8rem;
+        }
+
+        .measure-item-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .measure-item-type.distance {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+        }
+
+        .measure-item-type.area {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--measure-active);
+        }
+
+        .measure-item-type.coordinate {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+
+        .measure-item-value {
+            font-family: 'SF Mono', monospace;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .measure-item-delete {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0.2rem;
+            border-radius: 4px;
+        }
+
+        .measure-item-delete:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
         }
 
         /* Coordinate Panel */
@@ -1041,6 +822,36 @@
             color: var(--text-muted);
         }
 
+        .layer-actions {
+            display: flex;
+            gap: 0.25rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .layer-item:hover .layer-actions {
+            opacity: 1;
+        }
+
+        .layer-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .layer-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
         /* Tracking Panel */
         .track-panel {
             background: var(--bg-secondary);
@@ -1098,7 +909,9 @@
             width: 100%;
         }
 
-        /* GPS Status Bar */
+        /* ============================================
+           GPS STATUS INDICATOR (Smartphone)
+           ============================================ */
         .gps-status-bar {
             position: absolute;
             top: 12px;
@@ -1168,7 +981,7 @@
             color: var(--text-muted);
         }
 
-        /* GPS FAB */
+        /* GPS FAB (Floating Action Button) for mobile */
         .gps-fab {
             position: absolute;
             bottom: 24px;
@@ -1203,7 +1016,7 @@
             box-shadow: 0 6px 24px rgba(34, 197, 94, 0.6);
         }
 
-        /* Measurement Overlay */
+        /* Measurement Overlay on Map */
         .measure-overlay {
             position: absolute;
             top: 70px;
@@ -1296,7 +1109,7 @@
         .sidebar-toggle {
             position: absolute;
             top: 70px;
-            left: 360px;
+            left: 340px;
             z-index: 501;
             width: 28px;
             height: 28px;
@@ -1394,8 +1207,8 @@
             border: 1px solid var(--border);
             border-radius: 12px;
             width: 90%;
-            max-width: 600px;
-            max-height: 85vh;
+            max-width: 500px;
+            max-height: 80vh;
             overflow: hidden;
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
         }
@@ -1435,7 +1248,7 @@
         .modal-body {
             padding: 1.25rem;
             overflow-y: auto;
-            max-height: 60vh;
+            max-height: 50vh;
         }
 
         .modal-footer {
@@ -1444,74 +1257,6 @@
             display: flex;
             justify-content: flex-end;
             gap: 0.5rem;
-        }
-
-        /* Detail View Modal */
-        .detail-view {
-            background: var(--bg-primary);
-            border-radius: 8px;
-            padding: 1rem;
-            border: 1px solid var(--border);
-        }
-
-        .detail-view-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .detail-view-type {
-            padding: 0.25rem 0.6rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .detail-view-title {
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .detail-view-section {
-            margin-bottom: 1rem;
-        }
-
-        .detail-view-section-title {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-        }
-
-        .detail-view-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
-        }
-
-        .detail-view-item {
-            background: var(--bg-secondary);
-            padding: 0.5rem 0.75rem;
-            border-radius: 6px;
-        }
-
-        .detail-view-item-label {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-bottom: 0.15rem;
-        }
-
-        .detail-view-item-value {
-            font-family: 'SF Mono', monospace;
-            font-size: 0.85rem;
-            color: var(--text-primary);
-            font-weight: 600;
         }
 
         /* Form Elements */
@@ -1620,7 +1365,11 @@
             background: var(--text-muted);
         }
 
-        /* Responsive */
+        /* ============================================
+           RESPONSIVE BREAKPOINTS
+           ============================================ */
+        
+        /* Tablet and below: show hamburger, hide desktop toolbar */
         @media (max-width: 900px) {
             .toolbar {
                 display: none !important;
@@ -1634,39 +1383,31 @@
                 display: none;
             }
             
+            /* Show GPS FAB on mobile */
             .gps-fab {
                 display: flex;
             }
             
+            /* Show GPS status bar on mobile */
             .gps-status-bar.visible {
                 display: flex;
             }
             
-            .campus-symbol {
+            /* Adjust campus symbol position for mobile */
+            .compass-symbol {
                 top: 66px;
-                right: 8px;
+                right: 12px;
+                width: 36px;
+                height: 36px;
             }
             
-            .campus-icon-wrapper {
-                width: 40px;
-                height: 40px;
-            }
-            
-            .campus-icon-wrapper svg {
-                width: 22px;
-                height: 22px;
-            }
-            
-            .campus-label {
-                font-size: 0.55rem;
-            }
-            
-            .campus-tooltip {
-                right: 50px;
-                min-width: 180px;
+            .compass-symbol svg {
+                width: 20px;
+                height: 20px;
             }
         }
 
+        /* Mobile specific adjustments */
         @media (max-width: 768px) {
             .sidebar {
                 position: absolute;
@@ -1693,6 +1434,7 @@
                 padding: 0.85rem;
             }
             
+            /* GPS status bar adjustments */
             .gps-status-bar {
                 top: 66px;
                 right: 56px;
@@ -1700,12 +1442,9 @@
                 right: auto;
                 max-width: calc(100% - 120px);
             }
-            
-            .detail-view-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
+        /* Very small screens */
         @media (max-width: 380px) {
             .gps-status-bar {
                 padding: 0.4rem 0.6rem;
@@ -1713,18 +1452,6 @@
             
             .gps-coords {
                 font-size: 0.7rem;
-            }
-            
-            .sidebar {
-                width: 320px;
-            }
-            
-            .sidebar-toggle {
-                left: 320px;
-            }
-            
-            .sidebar-toggle.collapsed {
-                left: 8px;
             }
         }
 
@@ -1764,7 +1491,7 @@
             color: var(--text-primary) !important;
         }
 
-        /* GPS Marker */
+        /* GPS Marker on Map */
         .gps-marker-icon {
             width: 20px;
             height: 20px;
@@ -1792,7 +1519,7 @@
             border-bottom: 10px solid var(--gps-active);
         }
 
-        /* Measurement Styles */
+        /* Measurement Styles on Map */
         .measure-tooltip {
             background: rgba(15, 23, 42, 0.9) !important;
             border: 1px solid var(--measure-active) !important;
@@ -1892,7 +1619,49 @@
         }
 
         .hidden { display: none !important; }
-    </style>
+    
+        /* Leaflet Locate Control Custom Styling */
+        .leaflet-control-locate a {
+            background: var(--bg-secondary) !important;
+            color: var(--accent) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 6px !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+        }
+        .leaflet-control-locate a:hover {
+            background: var(--bg-tertiary) !important;
+        }
+        .leaflet-control-locate.active a {
+            background: var(--gps-bg) !important;
+            color: var(--gps-active) !important;
+            border-color: var(--gps-active) !important;
+        }
+        .leaflet-control-locate.requesting a {
+            animation: locatePulse 1.5s infinite;
+        }
+        @keyframes locatePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        /* Location marker styling */
+        .leaflet-control-locate-location-circle {
+            stroke: var(--gps-active) !important;
+            fill: var(--gps-active) !important;
+            fill-opacity: 0.15 !important;
+        }
+        .leaflet-control-locate-marker {
+            background: var(--gps-active) !important;
+            border: 3px solid white !important;
+            box-shadow: 0 0 0 4px var(--gps-pulse) !important;
+        }
+        .leaflet-control-locate-compass-bearing {
+            fill: var(--gps-active) !important;
+        }
+</style>
+    <!-- Leaflet Locate Control -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.81.1/dist/L.Control.Locate.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.81.1/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+
 </head>
 <body>
 
@@ -1904,42 +1673,17 @@
         <div class="loader-bar"></div>
     </div>
 
-    <!-- CAMPUS SYMBOL (Remake - Top Right) -->
-    <div class="campus-symbol" id="campusSymbol" onclick="showCampusInfo()">
-        <div class="campus-icon-wrapper">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/>
-                <path d="M12 2L2 7v2h20V7L12 2zm0 2.5L18.5 7H5.5L12 4.5z" opacity="0.6"/>
-            </svg>
-        </div>
-        <div class="campus-label">Campus</div>
-        
-        <div class="campus-tooltip">
-            <div class="campus-tooltip-header">
-                <span class="campus-tooltip-icon">🏛️</span>
-                <span class="campus-tooltip-title">Laos GIS Mapper Pro</span>
-            </div>
-            <div class="campus-tooltip-text">
-                Professional GIS mapping platform for surveying,<br>
-                measurement, and spatial data management in Laos.
-            </div>
-            <div class="campus-tooltip-stats">
-                <div class="campus-stat">
-                    <div class="campus-stat-value" id="campusStatPoints">0</div>
-                    <div class="campus-stat-label">Points</div>
-                </div>
-                <div class="campus-stat">
-                    <div class="campus-stat-value" id="campusStatMeasures">0</div>
-                    <div class="campus-stat-label">Measures</div>
-                </div>
-                <div class="campus-stat">
-                    <div class="campus-stat-value" id="campusStatTracks">0</div>
-                    <div class="campus-stat-label">Tracks</div>
-                </div>
-                <div class="campus-stat">
-                    <div class="campus-stat-value" id="campusStatAreas">0</div>
-                    <div class="campus-stat-label">Areas</div>
-                </div>
+    <!-- COMPASS SYMBOL (Fixed Top Right) -->
+    <div class="compass-symbol" id="compassSymbol" title="Laos GIS Mapper Pro">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 24.024a11.25 11.25 0 0 0 2.943-22.11A1.5 1.5 0 0 0 13.5 0h-3a1.5 1.5 0 0 0-1.443 1.914A11.25 11.25 0 0 0 12 24.024zm9.75-11.25a9.75 9.75 0 1 1-19.5 0 9.75 9.75 0 0 1 19.5 0"/>
+            <path d="m10.41 11.16 7.425-4.245-4.245 7.425-7.424 4.245 4.242-7.425z" fill="var(--accent)"/>
+        </svg>
+        <div class="compass-tooltip">
+            <div class="compass-tooltip-title">🧭 Laos GIS Mapper Pro</div>
+            <div class="compass-tooltip-text">
+                Professional GIS mapping tool for Laos.<br>
+                Version 2.0 • Built with Leaflet
             </div>
         </div>
     </div>
@@ -2077,7 +1821,7 @@
                 </div>
                 
                 <div class="sidebar-content">
-                    <!-- GPS Status Panel -->
+                    <!-- GPS Status Panel (visible in sidebar always) -->
                     <div class="sidebar-section" id="gpsSidebarSection">
                         <div class="section-title">📡 GPS Status</div>
                         <div class="coord-panel">
@@ -2108,35 +1852,6 @@
                                 <span class="coord-label">Heading</span>
                                 <span class="coord-value" id="gpsHeading">--</span>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Current Operation Detail Panel -->
-                    <div class="sidebar-section" id="currentDetailSection" style="display:none;">
-                        <div class="section-title">📝 Current Operation</div>
-                        <div class="detail-panel" id="currentDetailPanel">
-                            <div class="detail-header">
-                                <span class="detail-header-title" id="currentDetailTitle">📍 Detail</span>
-                                <div class="detail-header-actions">
-                                    <button class="detail-btn" onclick="saveCurrentOperation()" title="Save">💾</button>
-                                    <button class="detail-btn" onclick="clearCurrentDetail()" title="Clear">✕</button>
-                                </div>
-                            </div>
-                            <div class="detail-body" id="currentDetailBody">
-                                <!-- Dynamic content -->
-                            </div>
-                            <div class="detail-timestamp" id="currentDetailTime">--</div>
-                        </div>
-                    </div>
-
-                    <!-- Saved Items List -->
-                    <div class="sidebar-section">
-                        <div class="section-title" style="display:flex;justify-content:space-between;">
-                            <span>📋 Saved Records</span>
-                            <button class="btn btn-xs btn-secondary" onclick="clearAllSaved()">Clear All</button>
-                        </div>
-                        <div class="saved-list" id="savedList">
-                            <p style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:1rem;">No saved records yet. Perform operations to save details.</p>
                         </div>
                     </div>
 
@@ -2187,7 +1902,7 @@
                     <!-- Measurement History -->
                     <div class="sidebar-section">
                         <div class="section-title" style="display:flex;justify-content:space-between;">
-                            <span>📐 Measure History</span>
+                            <span>📋 Measure History</span>
                             <button class="btn btn-xs btn-secondary" onclick="clearMeasureHistory()">Clear</button>
                         </div>
                         <div class="measure-history" id="measureHistory">
@@ -2297,7 +2012,18 @@
                         </ul>
                     </div>
 
-                    <!-- Markers -->
+                                        <!-- Saved Tracks -->
+                    <div class="sidebar-section">
+                        <div class="section-title" style="display:flex;justify-content:space-between;">
+                            <span>🗺️ Saved Tracks</span>
+                            <button class="btn btn-xs btn-secondary" onclick="clearAllTracks()">Clear</button>
+                        </div>
+                        <div class="measure-history" id="tracksList">
+                            <p style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:1rem;">No saved tracks yet. Start GPS tracking to record.</p>
+                        </div>
+                    </div>
+
+<!-- Markers -->
                     <div class="sidebar-section">
                         <div class="section-title" style="display:flex;justify-content:space-between;">
                             <span>📌 Markers</span>
@@ -2316,7 +2042,7 @@
             <div class="map-wrapper">
                 <div id="map"></div>
                 
-                <!-- GPS Status Bar (Mobile) -->
+                <!-- GPS Status Bar (Mobile Only) -->
                 <div class="gps-status-bar" id="gpsStatusBar">
                     <div class="gps-indicator pulsing" id="gpsIndicator">
                         <div class="gps-indicator-dot"></div>
@@ -2328,8 +2054,8 @@
                     </div>
                 </div>
 
-                <!-- GPS FAB -->
-                <button class="gps-fab" id="gpsFab" onclick="centerOnGPS()" title="Center on my location">
+                <!-- GPS FAB (Floating Action Button - Mobile Only) -->
+                <button class="gps-fab" id="gpsFab" onclick="centerOnGPS()" title="Show My Current Position">
                     📍
                 </button>
 
@@ -2381,7 +2107,43 @@
         </div>
     </div>
 
-    <!-- Toast Container -->
+        <!-- Name / Description Modal -->
+    <div class="modal-overlay" id="nameDescModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title" id="nameDescTitle">📌 Add Details</span>
+                <button class="modal-close" onclick="closeNameDescModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Name / Title</label>
+                    <input type="text" class="form-input" id="nameDescName" placeholder="Enter name (e.g. Village Checkpoint, Survey Point A)" maxlength="60">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description / Notes</label>
+                    <textarea class="form-textarea" id="nameDescDesc" placeholder="Enter description, activities, notes..." maxlength="500"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category (optional)</label>
+                    <select class="form-select" id="nameDescCategory">
+                        <option value="">-- Select --</option>
+                        <option value="checkpoint">🚩 Checkpoint</option>
+                        <option value="survey">📐 Survey Point</option>
+                        <option value="landmark">🏛️ Landmark</option>
+                        <option value="activity">🎯 Activity</option>
+                        <option value="boundary">🚧 Boundary</option>
+                        <option value="other">📍 Other</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeNameDescModal()">Skip</button>
+                <button class="btn btn-primary" onclick="saveNameDesc()">💾 Save</button>
+            </div>
+        </div>
+    </div>
+
+<!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
     <!-- Context Menu -->
@@ -2392,23 +2154,6 @@
         <div class="context-item" onclick="copyCoordsContext()">📋 Copy Coordinates</div>
         <div class="context-divider"></div>
         <div class="context-item" onclick="queryElevationContext()">⛰️ Query Elevation</div>
-    </div>
-
-    <!-- Detail View Modal -->
-    <div class="modal-overlay" id="detailModal">
-        <div class="modal">
-            <div class="modal-header">
-                <span class="modal-title" id="detailModalTitle">📋 Record Detail</span>
-                <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
-            </div>
-            <div class="modal-body" id="detailModalBody">
-                <!-- Dynamic content -->
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('detailModal')">Close</button>
-                <button class="btn btn-primary" onclick="exportSingleRecord()">📤 Export</button>
-            </div>
-        </div>
     </div>
 
     <!-- Export Modal -->
@@ -2456,7 +2201,6 @@
                         <option value="route">Current Route</option>
                         <option value="track">GPS Track</option>
                         <option value="measurements">Measurements</option>
-                        <option value="saved">Saved Records</option>
                         <option value="all">All Data</option>
                     </select>
                 </div>
@@ -2554,7 +2298,6 @@
         let contextMenuLatLng = null;
         let selectedCRS = 'EPSG:4326';
         let toastId = 0;
-        let currentViewingRecord = null;
 
         // GPS State
         let gpsState = {
@@ -2579,12 +2322,8 @@
         };
         let measureHistory = [];
 
-        // Saved Records
-        let savedRecords = [];
-        let currentOperation = null;
-
         // ============================================
-        // INITIALIZATION
+        // RELIABLE FAST INITIALIZATION
         // ============================================
         
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
@@ -2618,6 +2357,7 @@
             initDragDrop();
             setupContextMenu();
             
+            // Auto-start GPS on mobile
             if (isMobile()) {
                 startGPS();
             }
@@ -2630,7 +2370,7 @@
                 }, 300);
             }
             
-            showToast('success', 'Ready', 'Laos GIS Mapper loaded. All operations are auto-saved with details.');
+            showToast('success', 'Ready', 'Laos GIS Mapper loaded. GPS auto-enabled on mobile.');
         }
 
         function isMobile() {
@@ -2638,310 +2378,7 @@
         }
 
         // ============================================
-        // CAMPUS SYMBOL
-        // ============================================
-        function showCampusInfo() {
-            showToast('info', '🏛️ Laos GIS Mapper Pro', 'Professional GIS mapping platform for surveying and spatial data management.');
-        }
-
-        function updateCampusStats() {
-            const points = savedRecords.filter(r => r.type === 'point').length;
-            const measures = savedRecords.filter(r => r.type === 'distance').length;
-            const tracks = savedRecords.filter(r => r.type === 'track').length;
-            const areas = savedRecords.filter(r => r.type === 'area').length;
-            
-            document.getElementById('campusStatPoints').textContent = points;
-            document.getElementById('campusStatMeasures').textContent = measures;
-            document.getElementById('campusStatTracks').textContent = tracks;
-            document.getElementById('campusStatAreas').textContent = areas;
-        }
-
-        // ============================================
-        // SAVED RECORDS SYSTEM
-        // ============================================
-        function addSavedRecord(record) {
-            record.id = Date.now();
-            record.timestamp = new Date();
-            savedRecords.push(record);
-            updateSavedList();
-            updateCampusStats();
-            
-            // Auto-show detail panel
-            showCurrentDetail(record);
-        }
-
-        function updateSavedList() {
-            const container = document.getElementById('savedList');
-            
-            if (savedRecords.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:1rem;">No saved records yet. Perform operations to save details.</p>';
-                return;
-            }
-            
-            let html = '';
-            savedRecords.slice().reverse().forEach((r, idx) => {
-                const realIdx = savedRecords.length - 1 - idx;
-                const typeClass = r.type;
-                const typeIcon = r.type === 'point' ? '📍' : r.type === 'distance' ? '📏' : r.type === 'area' ? '📐' : r.type === 'track' ? '🛤️' : '📋';
-                const title = r.name || `${r.type.charAt(0).toUpperCase() + r.type.slice(1)} ${realIdx + 1}`;
-                
-                let summary = '';
-                if (r.type === 'point') {
-                    summary = `<span class="saved-item-stat">📍 ${r.lat?.toFixed(5)}, ${r.lng?.toFixed(5)}</span>`;
-                } else if (r.type === 'distance') {
-                    summary = `<span class="saved-item-stat">📏 ${r.meters?.toFixed(2)}m</span><span class="saved-item-stat">🔢 ${r.points?.length || 0} pts</span>`;
-                } else if (r.type === 'area') {
-                    summary = `<span class="saved-item-stat">📐 ${r.hectares?.toFixed(4)} ha</span><span class="saved-item-stat">🔢 ${r.points?.length || 0} pts</span>`;
-                } else if (r.type === 'track') {
-                    summary = `<span class="saved-item-stat">🛤️ ${r.distance?.toFixed(2)} km</span><span class="saved-item-stat">⏱️ ${r.duration || '--'}</span>`;
-                }
-                
-                html += `
-                    <div class="saved-item" onclick="viewRecordDetail(${realIdx})">
-                        <div class="saved-item-header">
-                            <span class="saved-item-type ${typeClass}">${typeIcon} ${r.type}</span>
-                            <div class="saved-item-actions">
-                                <button class="detail-btn" onclick="event.stopPropagation(); flyToRecord(${realIdx})" title="Zoom to">🔍</button>
-                                <button class="detail-btn" onclick="event.stopPropagation(); exportRecord(${realIdx})" title="Export">📤</button>
-                                <button class="detail-btn" onclick="event.stopPropagation(); deleteRecord(${realIdx})" title="Delete">🗑️</button>
-                            </div>
-                        </div>
-                        <div class="saved-item-title">${title}</div>
-                        <div class="saved-item-summary">${summary}</div>
-                        <div class="saved-item-time">${formatTime(r.timestamp)}</div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        function showCurrentDetail(record) {
-            currentOperation = record;
-            const section = document.getElementById('currentDetailSection');
-            const panel = document.getElementById('currentDetailPanel');
-            const title = document.getElementById('currentDetailTitle');
-            const body = document.getElementById('currentDetailBody');
-            const time = document.getElementById('currentDetailTime');
-            
-            section.style.display = 'block';
-            
-            const typeIcon = record.type === 'point' ? '📍' : record.type === 'distance' ? '📏' : record.type === 'area' ? '📐' : record.type === 'track' ? '🛤️' : '📋';
-            title.textContent = `${typeIcon} ${record.name || record.type.toUpperCase()}`;
-            time.textContent = `Created: ${formatTime(record.timestamp)}`;
-            
-            let html = '';
-            for (const [key, value] of Object.entries(record)) {
-                if (['id', 'timestamp', 'type', 'name', 'mapLayer'].includes(key)) continue;
-                
-                let displayValue = value;
-                let valueClass = '';
-                
-                if (typeof value === 'number') {
-                    if (key.includes('lat') || key.includes('lng')) {
-                        displayValue = value.toFixed(6);
-                    } else if (key.includes('meter') || key.includes('distance')) {
-                        displayValue = value.toFixed(2) + ' m';
-                        valueClass = 'accent';
-                    } else if (key.includes('km')) {
-                        displayValue = value.toFixed(4) + ' km';
-                        valueClass = 'accent';
-                    } else if (key.includes('hectare') || key.includes('ha')) {
-                        displayValue = value.toFixed(4) + ' ha';
-                        valueClass = 'success';
-                    } else if (key.includes('sq') || key.includes('area') && !key.includes('hectare')) {
-                        displayValue = value.toFixed(2) + ' m²';
-                        valueClass = 'success';
-                    } else if (key.includes('speed')) {
-                        displayValue = value.toFixed(1) + ' km/h';
-                    } else if (key.includes('accuracy')) {
-                        displayValue = '±' + value.toFixed(0) + ' m';
-                    } else {
-                        displayValue = value.toFixed(2);
-                    }
-                } else if (Array.isArray(value)) {
-                    displayValue = value.length + ' points';
-                }
-                
-                const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-                
-                html += `
-                    <div class="detail-row">
-                        <span class="detail-label">${label}</span>
-                        <span class="detail-value ${valueClass}">${displayValue}</span>
-                    </div>
-                `;
-            }
-            
-            body.innerHTML = html || '<p style="color:var(--text-muted);font-size:0.8rem;">No details available</p>';
-        }
-
-        function saveCurrentOperation() {
-            if (!currentOperation) return;
-            showToast('success', 'Saved', `${currentOperation.name || currentOperation.type} saved to records`);
-            updateSavedList();
-        }
-
-        function clearCurrentDetail() {
-            document.getElementById('currentDetailSection').style.display = 'none';
-            currentOperation = null;
-        }
-
-        function viewRecordDetail(index) {
-            const record = savedRecords[index];
-            if (!record) return;
-            
-            currentViewingRecord = record;
-            
-            const modal = document.getElementById('detailModal');
-            const title = document.getElementById('detailModalTitle');
-            const body = document.getElementById('detailModalBody');
-            
-            const typeIcon = record.type === 'point' ? '📍' : record.type === 'distance' ? '📏' : record.type === 'area' ? '📐' : record.type === 'track' ? '🛤️' : '📋';
-            title.textContent = `${typeIcon} ${record.name || record.type.toUpperCase()} Detail`;
-            
-            let html = `
-                <div class="detail-view">
-                    <div class="detail-view-header">
-                        <span class="detail-view-type ${record.type}">${record.type}</span>
-                        <span class="detail-view-title">${record.name || 'Unnamed'}</span>
-                    </div>
-            `;
-            
-            // Properties section
-            html += `
-                <div class="detail-view-section">
-                    <div class="detail-view-section-title">Properties</div>
-                    <div class="detail-view-grid">
-            `;
-            
-            for (const [key, value] of Object.entries(record)) {
-                if (['id', 'timestamp', 'type', 'name', 'mapLayer', 'points'].includes(key)) continue;
-                
-                let displayValue = value;
-                if (typeof value === 'number') {
-                    if (key.includes('lat') || key.includes('lng')) displayValue = value.toFixed(6);
-                    else if (key.includes('meter')) displayValue = value.toFixed(2) + ' m';
-                    else if (key.includes('km')) displayValue = value.toFixed(4) + ' km';
-                    else if (key.includes('hectare')) displayValue = value.toFixed(4) + ' ha';
-                    else if (key.includes('sq')) displayValue = value.toFixed(2) + ' m²';
-                    else displayValue = value.toFixed(2);
-                }
-                
-                const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-                html += `
-                    <div class="detail-view-item">
-                        <div class="detail-view-item-label">${label}</div>
-                        <div class="detail-view-item-value">${displayValue}</div>
-                    </div>
-                `;
-            }
-            
-            html += `
-                    </div>
-                </div>
-            `;
-            
-            // Timestamp
-            html += `
-                <div class="detail-view-section">
-                    <div class="detail-view-section-title">Metadata</div>
-                    <div class="detail-view-grid">
-                        <div class="detail-view-item">
-                            <div class="detail-view-item-label">Created</div>
-                            <div class="detail-view-item-value">${formatTime(record.timestamp)}</div>
-                        </div>
-                        <div class="detail-view-item">
-                            <div class="detail-view-item-label">Record ID</div>
-                            <div class="detail-view-item-value">#${record.id}</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            html += '</div>';
-            body.innerHTML = html;
-            
-            modal.classList.add('active');
-        }
-
-        function flyToRecord(index) {
-            const record = savedRecords[index];
-            if (!record || !map) return;
-            
-            if (record.lat && record.lng) {
-                map.setView([record.lat, record.lng], 16);
-            } else if (record.points && record.points.length > 0) {
-                const bounds = L.latLngBounds(record.points.map(p => [p.lat, p.lng]));
-                map.fitBounds(bounds, { padding: [50, 50] });
-            }
-        }
-
-        function exportRecord(index) {
-            const record = savedRecords[index];
-            if (!record) return;
-            
-            const geojson = {
-                type: 'FeatureCollection',
-                features: [{
-                    type: 'Feature',
-                    properties: {
-                        name: record.name,
-                        type: record.type,
-                        ...record
-                    },
-                    geometry: record.points ? {
-                        type: record.type === 'point' ? 'Point' : record.type === 'area' ? 'Polygon' : 'LineString',
-                        coordinates: record.type === 'point' ? [record.lng, record.lat] :
-                            record.type === 'area' ? [record.points.map(p => [p.lng, p.lat])] :
-                            record.points.map(p => [p.lng, p.lat])
-                    } : {
-                        type: 'Point',
-                        coordinates: [record.lng || 0, record.lat || 0]
-                    }
-                }]
-            };
-            
-            const content = JSON.stringify(geojson, null, 2);
-            downloadFile(content, `record_${record.type}_${record.id}.geojson`, 'application/json');
-            showToast('success', 'Exported', 'Record exported as GeoJSON');
-        }
-
-        function deleteRecord(index) {
-            const record = savedRecords[index];
-            if (record && record.mapLayer) {
-                map.removeLayer(record.mapLayer);
-            }
-            savedRecords.splice(index, 1);
-            updateSavedList();
-            updateCampusStats();
-            showToast('info', 'Deleted', 'Record removed');
-        }
-
-        function clearAllSaved() {
-            savedRecords.forEach(r => {
-                if (r.mapLayer) map.removeLayer(r.mapLayer);
-            });
-            savedRecords = [];
-            updateSavedList();
-            updateCampusStats();
-            clearCurrentDetail();
-            showToast('info', 'Cleared', 'All saved records removed');
-        }
-
-        function formatTime(date) {
-            if (!date) return '--';
-            const d = new Date(date);
-            return d.toLocaleString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-        }
-
-        // ============================================
-        // MOBILE MENU
+        // MOBILE MENU FUNCTIONS
         // ============================================
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
@@ -2956,14 +2393,30 @@
             closeMobileMenu();
             
             switch(action) {
-                case 'distance': toggleMeasureMode('distance'); break;
-                case 'area': toggleMeasureMode('area'); break;
-                case 'coordinate': toggleMeasureMode('coordinate'); break;
-                case 'import': showImportModal(); break;
-                case 'export': showExportModal(); break;
-                case 'track': toggleTracking(); break;
-                case 'laos': resetToLaos(); break;
-                case 'clear': clearAll(); break;
+                case 'distance':
+                    toggleMeasureMode('distance');
+                    break;
+                case 'area':
+                    toggleMeasureMode('area');
+                    break;
+                case 'coordinate':
+                    toggleMeasureMode('coordinate');
+                    break;
+                case 'import':
+                    showImportModal();
+                    break;
+                case 'export':
+                    showExportModal();
+                    break;
+                case 'track':
+                    toggleTracking();
+                    break;
+                case 'laos':
+                    resetToLaos();
+                    break;
+                case 'clear':
+                    clearAll();
+                    break;
             }
         }
 
@@ -2971,30 +2424,38 @@
             const mmDist = document.getElementById('mmMeasureDistance');
             const btnDist = document.getElementById('btnMeasureDistance');
             if (mmDist && btnDist) {
-                mmDist.className = btnDist.classList.contains('active') ? 'mobile-menu-item active' : 'mobile-menu-item';
+                mmDist.className = btnDist.classList.contains('active') 
+                    ? 'mobile-menu-item active' 
+                    : 'mobile-menu-item';
             }
             
             const mmArea = document.getElementById('mmMeasureArea');
             const btnArea = document.getElementById('btnMeasureArea');
             if (mmArea && btnArea) {
-                mmArea.className = btnArea.classList.contains('active') ? 'mobile-menu-item active' : 'mobile-menu-item';
+                mmArea.className = btnArea.classList.contains('active') 
+                    ? 'mobile-menu-item active' 
+                    : 'mobile-menu-item';
             }
             
             const mmCoord = document.getElementById('mmMeasureCoord');
             const btnCoord = document.getElementById('btnMeasureCoord');
             if (mmCoord && btnCoord) {
-                mmCoord.className = btnCoord.classList.contains('active') ? 'mobile-menu-item active' : 'mobile-menu-item';
+                mmCoord.className = btnCoord.classList.contains('active') 
+                    ? 'mobile-menu-item active' 
+                    : 'mobile-menu-item';
             }
             
             const mmTrack = document.getElementById('mmTrackToggle');
             const btnTrack = document.getElementById('btnTrackToggle');
             if (mmTrack && btnTrack) {
-                mmTrack.className = btnTrack.classList.contains('active') ? 'mobile-menu-item active' : 'mobile-menu-item';
+                mmTrack.className = btnTrack.classList.contains('active') 
+                    ? 'mobile-menu-item active' 
+                    : 'mobile-menu-item';
             }
         }
 
         // ============================================
-        // GPS FUNCTIONS
+        // GPS FUNCTIONS (Persistent Location)
         // ============================================
         function startGPS() {
             if (!navigator.geolocation) {
@@ -3045,16 +2506,23 @@
             const { latitude, longitude, accuracy, speed, heading } = position.coords;
             gpsState.currentPosition = { lat: latitude, lng: longitude, accuracy, speed, heading };
             
+            // Update sidebar
             document.getElementById('gpsLat').textContent = latitude.toFixed(6);
             document.getElementById('gpsLng').textContent = longitude.toFixed(6);
             document.getElementById('gpsAccuracy').textContent = accuracy ? `±${accuracy.toFixed(0)}m` : '--';
             document.getElementById('gpsSpeed').textContent = speed ? `${(speed * 3.6).toFixed(1)} km/h` : '--';
             document.getElementById('gpsHeading').textContent = heading ? `${heading.toFixed(0)}°` : '--';
             
+            // Update status
             updateGPSStatus('active', 'Active');
+            
+            // Update mobile status bar
             updateGPSBar(latitude, longitude, accuracy);
+            
+            // Update map marker
             updateGPSMapMarker(latitude, longitude, accuracy, heading);
             
+            // Update FAB
             const fab = document.getElementById('gpsFab');
             if (fab) fab.classList.add('active');
         }
@@ -3117,6 +2585,7 @@
         function updateGPSMapMarker(lat, lng, accuracy, heading) {
             const latlng = L.latLng(lat, lng);
             
+            // Remove old
             if (gpsState.mapMarker) {
                 map.removeLayer(gpsState.mapMarker);
             }
@@ -3124,6 +2593,7 @@
                 map.removeLayer(gpsState.accuracyCircle);
             }
             
+            // Accuracy circle
             if (accuracy) {
                 gpsState.accuracyCircle = L.circle(latlng, {
                     radius: accuracy,
@@ -3134,11 +2604,16 @@
                 }).addTo(map);
             }
             
+            // Custom marker with heading
             const headingHtml = heading ? `<div class="gps-marker-heading" style="transform: rotate(${heading}deg); transform-origin: bottom center;"></div>` : '';
             gpsState.mapMarker = L.marker(latlng, {
                 icon: L.divIcon({
                     className: 'gps-marker-container',
-                    html: `<div class="gps-marker-icon">${headingHtml}</div>`,
+                    html: `
+                        <div class="gps-marker-icon">
+                            ${headingHtml}
+                        </div>
+                    `,
                     iconSize: [20, 20],
                     iconAnchor: [10, 10]
                 }),
@@ -3159,7 +2634,11 @@
         }
 
         function centerOnGPS() {
-            if (gpsState.currentPosition) {
+            // Use the locate control to start locating and center on position
+            if (locateControl) {
+                locateControl.start();
+                showToast('info', 'Locating...', 'Getting your current position and centering map...');
+            } else if (gpsState.currentPosition) {
                 const { lat, lng } = gpsState.currentPosition;
                 map.setView([lat, lng], 16);
                 showToast('info', 'GPS Centered', `Centered on your location`);
@@ -3201,6 +2680,134 @@
 
             drawnItems = new L.FeatureGroup();
             map.addLayer(drawnItems);
+
+            // ============================================
+            // LEAFLET LOCATE CONTROL - Show My Position
+            // ============================================
+            const locateControl = L.control.locate({
+                position: 'topright',
+                setView: 'untilPanOrZoom',
+                flyTo: true,
+                keepCurrentZoomLevel: false,
+                initialZoomLevel: 16,
+                drawCircle: true,
+                drawMarker: true,
+                showCompass: true,
+                compassAccuracyThreshold: 45,
+                metric: true,
+                cacheLocation: true,
+                locateOptions: {
+                    enableHighAccuracy: true,
+                    maxZoom: 18,
+                    watch: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                },
+                strings: {
+                    title: '📍 Show My Current Position',
+                    metersUnit: 'meters',
+                    feetUnit: 'feet',
+                    popup: 'You are within {distance} {unit} of this point<br><b>Lat:</b> {lat}<br><b>Lng:</b> {lng}'
+                },
+                circleStyle: {
+                    color: '#22c55e',
+                    weight: 1,
+                    fillColor: '#22c55e',
+                    fillOpacity: 0.15,
+                    opacity: 0.5
+                },
+                markerStyle: {
+                    color: '#22c55e',
+                    fillColor: '#22c55e',
+                    fillOpacity: 1,
+                    weight: 3
+                },
+                compassStyle: {
+                    color: '#22c55e',
+                    fillColor: '#22c55e',
+                    fillOpacity: 0.8,
+                    weight: 2
+                },
+                followCircleStyle: {
+                    color: '#38bdf8',
+                    fillColor: '#38bdf8',
+                    fillOpacity: 0.15
+                },
+                followMarkerStyle: {
+                    color: '#38bdf8',
+                    fillColor: '#38bdf8',
+                    fillOpacity: 1
+                },
+                followCompassStyle: {
+                    color: '#38bdf8',
+                    fillColor: '#38bdf8',
+                    fillOpacity: 0.8
+                },
+                onLocationError: function(err) {
+                    showToast('error', 'Location Error', err.message || 'Could not get your location. Please enable GPS permissions.');
+                },
+                onLocationOutsideMapBounds: function(control) {
+                    showToast('warning', 'Outside Map', 'Your location is outside the current map view.');
+                }
+            }).addTo(map);
+
+            // Listen to locate events for sidebar updates
+            map.on('locateactivate', function() {
+                showToast('info', 'Locating...', 'Getting your current position...');
+            });
+
+            map.on('locatelocationfound', function(e) {
+                // Update sidebar with current location info
+                document.getElementById('gpsLat').textContent = e.latlng.lat.toFixed(6);
+                document.getElementById('gpsLng').textContent = e.latlng.lng.toFixed(6);
+                document.getElementById('gpsAccuracy').textContent = e.accuracy ? `±${e.accuracy.toFixed(0)}m` : '--';
+
+                // Update GPS status badge
+                const badge = document.getElementById('gpsStatusBadge');
+                const dot = document.getElementById('gpsStatusDot');
+                const label = document.getElementById('gpsStatusText');
+                if (badge) {
+                    badge.style.background = 'rgba(34, 197, 94, 0.15)';
+                    badge.style.color = 'var(--success)';
+                }
+                if (dot) {
+                    dot.style.background = 'var(--success)';
+                    dot.style.animation = 'blink 2s infinite';
+                }
+                if (label) label.textContent = 'Active';
+
+                // Update mobile GPS bar
+                updateGPSBar(e.latlng.lat, e.latlng.lng, e.accuracy);
+
+                // Update FAB
+                const fab = document.getElementById('gpsFab');
+                if (fab) fab.classList.add('active');
+
+                showToast('success', 'Position Found', `Lat: ${e.latlng.lat.toFixed(5)}, Lng: ${e.latlng.lng.toFixed(5)}`);
+            });
+
+            map.on('locatedeactivate', function() {
+                // Reset GPS status
+                const badge = document.getElementById('gpsStatusBadge');
+                const dot = document.getElementById('gpsStatusDot');
+                const label = document.getElementById('gpsStatusText');
+                if (badge) {
+                    badge.style.background = 'rgba(239, 68, 68, 0.15)';
+                    badge.style.color = 'var(--danger)';
+                }
+                if (dot) {
+                    dot.style.background = 'var(--danger)';
+                    dot.style.animation = 'none';
+                }
+                if (label) label.textContent = 'Off';
+
+                hideGPSBar();
+
+                const fab = document.getElementById('gpsFab');
+                if (fab) fab.classList.remove('active');
+            });
+
+
 
             const drawControl = new L.Control.Draw({
                 draw: {
@@ -3360,32 +2967,18 @@
                 document.getElementById('overlayPrimary').textContent = latlng.lat.toFixed(6);
                 document.getElementById('overlaySecondary').textContent = latlng.lng.toFixed(6);
                 
-                // Auto-save point
-                const record = {
-                    type: 'point',
-                    name: `Point ${savedRecords.filter(r => r.type === 'point').length + 1}`,
-                    lat: latlng.lat,
-                    lng: latlng.lng,
-                    elevation: null,
-                    crs: 'EPSG:4326'
-                };
+                addMeasureToHistory('coordinate', `Lat: ${latlng.lat.toFixed(6)}, Lng: ${latlng.lng.toFixed(6)}`, null);
                 
-                // Query elevation then save
-                queryElevation(latlng.lat, latlng.lng, false, (ele) => {
-                    record.elevation = ele;
-                    addSavedRecord(record);
-                    
-                    const marker = L.circleMarker(latlng, {
-                        radius: 8,
-                        fillColor: '#38bdf8',
-                        color: '#fff',
-                        weight: 3,
-                        fillOpacity: 1
-                    }).addTo(map);
-                    record.mapLayer = marker;
-                    
-                    showToast('success', 'Point Saved', `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`);
-                });
+                const marker = L.circleMarker(latlng, {
+                    radius: 8,
+                    fillColor: '#f59e0b',
+                    color: '#fff',
+                    weight: 3,
+                    fillOpacity: 1
+                }).addTo(map);
+                measureMode.vertexMarkers.push(marker);
+                
+                showToast('success', 'Coordinate Captured', `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`);
                 return;
             }
             
@@ -3517,99 +3110,65 @@
 
         function finishMeasure() {
             if (!measureMode.active) return;
-            
+
             let result = null;
-            let record = null;
-            
+            let label = '';
+            let measureType = measureMode.type;
+            let points = [...measureMode.points];
+
             if (measureMode.type === 'distance' && measureMode.points.length >= 2) {
                 const line = turf.lineString(measureMode.points.map(p => [p.lng, p.lat]));
                 const meters = turf.length(line, { units: 'meters' });
                 const km = meters / 1000;
-                
+
                 result = { meters, kilometers: km };
-                
-                record = {
-                    type: 'distance',
-                    name: `Distance ${savedRecords.filter(r => r.type === 'distance').length + 1}`,
-                    meters: meters,
-                    kilometers: km,
-                    points: measureMode.points.map(p => ({ lat: p.lat, lng: p.lng })),
-                    pointCount: measureMode.points.length,
-                    crs: 'EPSG:4326'
-                };
-                
-                // Create permanent line on map
-                const permanentLine = L.polyline(measureMode.points, {
-                    color: '#f59e0b',
-                    weight: 3,
-                    opacity: 0.9
-                }).addTo(map);
-                record.mapLayer = permanentLine;
-                
-                addSavedRecord(record);
-                addMeasureToHistory('distance', `${meters.toFixed(2)} m (${km.toFixed(4)} km)`, result);
-                showToast('success', 'Distance Saved', `${meters.toFixed(2)} m (${km.toFixed(4)} km)`);
+                label = `${meters.toFixed(2)} m (${km.toFixed(4)} km)`;
             } else if (measureMode.type === 'area' && measureMode.points.length >= 3) {
                 const closed = [...measureMode.points, measureMode.points[0]];
                 const polygon = turf.polygon([closed.map(p => [p.lng, p.lat])]);
                 const sqMeters = turf.area(polygon);
                 const hectares = sqMeters / 10000;
-                
+
                 result = { sqMeters, hectares };
-                
-                record = {
-                    type: 'area',
-                    name: `Area ${savedRecords.filter(r => r.type === 'area').length + 1}`,
-                    sqMeters: sqMeters,
-                    hectares: hectares,
-                    points: measureMode.points.map(p => ({ lat: p.lat, lng: p.lng })),
-                    pointCount: measureMode.points.length,
-                    perimeter: turf.length(turf.lineString(closed.map(p => [p.lng, p.lat])), { units: 'meters' }),
-                    crs: 'EPSG:4326'
-                };
-                
-                // Create permanent polygon on map
-                const permanentPolygon = L.polygon(measureMode.points, {
-                    color: '#a855f7',
-                    weight: 2,
-                    fillColor: '#a855f7',
-                    fillOpacity: 0.2
-                }).addTo(map);
-                record.mapLayer = permanentPolygon;
-                
-                addSavedRecord(record);
-                addMeasureToHistory('area', `${sqMeters.toFixed(2)} m² (${hectares.toFixed(4)} ha)`, result);
-                showToast('success', 'Area Saved', `${sqMeters.toFixed(2)} m² (${hectares.toFixed(4)} ha)`);
+                label = `${sqMeters.toFixed(2)} m² (${hectares.toFixed(4)} ha)`;
+            } else if (measureMode.type === 'coordinate') {
+                cleanupMeasure();
+                return;
             }
-            
+
+            const title = measureType === 'distance' ? '📏 Save Distance Measurement' : '📐 Save Area Measurement';
+            openNameDescModal(title, measureType, { result, label, points }, (details) => {
+                if (details) {
+                    addMeasureToHistory(measureType, label, result, details.name, details.desc, details.category);
+                    showToast('success', measureType === 'distance' ? 'Distance Saved' : 'Area Saved', `${details.name}: ${label}`);
+                } else {
+                    addMeasureToHistory(measureType, label, result);
+                    showToast('success', measureType === 'distance' ? 'Distance Measured' : 'Area Measured', label);
+                }
+                cleanupMeasure();
+            });
+        }
+
+        function cleanupMeasure() {
             if (measureMode.tempLine) {
                 map.removeLayer(measureMode.tempLine);
                 measureMode.tempLine = null;
             }
-            
+
             measureMode.active = false;
             measureMode.type = null;
             measureMode.points = [];
-            measureMode.vertexMarkers.forEach(m => map.removeLayer(m));
             measureMode.vertexMarkers = [];
-            if (measureMode.polyline) {
-                map.removeLayer(measureMode.polyline);
-                measureMode.polyline = null;
-            }
-            if (measureMode.polygon) {
-                map.removeLayer(measureMode.polygon);
-                measureMode.polygon = null;
-            }
-            
+            measureMode.polyline = null;
+            measureMode.polygon = null;
+
             document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('measureOverlay').classList.remove('visible');
             document.getElementById('measureSection').style.display = 'none';
             map.getContainer().style.cursor = '';
-            
-            updateMobileMenuState();
-        }
 
-        function cancelMeasure() {
+            updateMobileMenuState();
+        }function cancelMeasure() {
             if (!measureMode.active && measureMode.vertexMarkers.length === 0) return;
             
             if (measureMode.tempLine) {
@@ -3642,30 +3201,39 @@
             updateMobileMenuState();
         }
 
-        function addMeasureToHistory(type, label, data) {
+        function addMeasureToHistory(type, label, data, name = '', desc = '', category = '') {
             const id = Date.now();
-            measureHistory.push({ id, type, label, data, time: new Date() });
+            measureHistory.push({ id, type, label, data, time: new Date(), name, desc, category });
             updateMeasureHistory();
         }
 
         function updateMeasureHistory() {
             const container = document.getElementById('measureHistory');
-            
+
             if (measureHistory.length === 0) {
                 container.innerHTML = '<p style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:1rem;">No measurements yet. Use toolbar buttons to start.</p>';
                 return;
             }
-            
+
             let html = '';
             measureHistory.slice().reverse().forEach(m => {
                 const icon = m.type === 'distance' ? '📏' : m.type === 'area' ? '📐' : '📍';
+                const catIcon = m.category ? getCategoryIcon(m.category) : '';
+                const nameDisplay = m.name ? `<strong style="color:var(--text-primary);">${catIcon} ${m.name}</strong>` : '';
+                const descDisplay = m.desc ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;border-left:2px solid var(--border);padding-left:0.4rem;">${m.desc}</div>` : '';
                 html += `
-                    <div class="measure-item">
-                        <div style="display:flex;align-items:center;gap:0.5rem;">
-                            <span class="measure-item-type ${m.type}">${icon} ${m.type}</span>
-                            <span class="measure-item-value">${m.label}</span>
+                    <div class="measure-item" style="flex-direction:column;align-items:flex-start;gap:0.3rem;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                                <span class="measure-item-type ${m.type}">${icon} ${m.type}</span>
+                                ${nameDisplay}
+                            </div>
+                            <button class="measure-item-delete" onclick="deleteMeasure(${m.id})" title="Delete">🗑️</button>
                         </div>
-                        <button class="measure-item-delete" onclick="deleteMeasure(${m.id})" title="Delete">🗑️</button>
+                        <div style="display:flex;align-items:center;gap:0.5rem;width:100%;">
+                            <span class="measure-item-value" style="font-size:0.85rem;">${m.label}</span>
+                        </div>
+                        ${descDisplay}
                     </div>
                 `;
             });
@@ -3675,9 +3243,7 @@
         function deleteMeasure(id) {
             measureHistory = measureHistory.filter(m => m.id !== id);
             updateMeasureHistory();
-        }
-
-        function clearMeasureHistory() {
+        }function clearMeasureHistory() {
             measureHistory = [];
             updateMeasureHistory();
             showToast('info', 'Cleared', 'Measurement history cleared');
@@ -3718,9 +3284,9 @@
             markers = [];
             clearRoute();
             clearTrack();
+            clearAllTracks();
             cancelMeasure();
             clearMeasureHistory();
-            clearAllSaved();
             updateMarkersList();
             showToast('info', 'Cleared', 'All data removed from map');
         }
@@ -3730,28 +3296,41 @@
         // ============================================
         function addMarkerAtContext() {
             if (!contextMenuLatLng) return;
-            addMarker(contextMenuLatLng.lat, contextMenuLatLng.lng, 'Context Marker');
-            hideContextMenu();
+            openNameDescModal('📌 Add Marker Details', 'marker', { lat: contextMenuLatLng.lat, lng: contextMenuLatLng.lng }, (details) => {
+                if (details) {
+                    addMarker(contextMenuLatLng.lat, contextMenuLatLng.lng, details.name, details.desc, details.category);
+                } else {
+                    addMarker(contextMenuLatLng.lat, contextMenuLatLng.lng, 'Context Marker');
+                }
+                hideContextMenu();
+            });
         }
 
-        function addMarker(lat, lng, name = 'Marker') {
+        function addMarker(lat, lng, name = 'Marker', desc = '', category = '') {
             const marker = L.marker([lat, lng]).addTo(map);
+            const catIcon = category ? getCategoryIcon(category) : '📍';
+            const catLabel = category ? getCategoryLabel(category) : 'Marker';
+
             marker.bindPopup(`
-                <div style="min-width:200px;">
-                    <h4 style="margin:0 0 0.5rem 0;">${name}</h4>
+                <div style="min-width:220px;">
+                    <h4 style="margin:0 0 0.3rem 0;color:var(--accent);">${catIcon} ${name}</h4>
+                    ${desc ? `<p style="margin:0 0 0.5rem 0;font-size:0.8rem;color:var(--text-secondary);border-left:2px solid var(--accent);padding-left:0.5rem;">${desc}</p>` : ''}
                     <p style="margin:0.25rem 0;font-size:0.85rem;">
                         <b>Lat:</b> ${lat.toFixed(6)}<br>
                         <b>Lng:</b> ${lng.toFixed(6)}<br>
-                        <b>Ele:</b> <span class="ele-val">--</span> m
+                        <b>Ele:</b> <span class="ele-val">--</span> m<br>
+                        <b>Category:</b> ${catLabel}
                     </p>
-                    <button onclick="this.closest('.leaflet-popup').querySelector('.leaflet-popup-close-button').click()" style="margin-top:0.5rem;padding:0.3rem 0.6rem;background:#38bdf8;border:none;border-radius:4px;cursor:pointer;">Close</button>
+                    <button onclick="this.closest('.leaflet-popup').querySelector('.leaflet-popup-close-button').click()" style="margin-top:0.5rem;padding:0.3rem 0.6rem;background:#38bdf8;border:none;border-radius:4px;cursor:pointer;color:#0f172a;font-weight:600;">Close</button>
                 </div>
             `).openPopup();
-            
+
             marker.name = name;
+            marker.desc = desc;
+            marker.category = category;
             marker.id = Date.now();
             markers.push(marker);
-            
+
             queryElevation(lat, lng, false, (ele) => {
                 marker.elevation = ele;
                 const popup = marker.getPopup();
@@ -3763,12 +3342,19 @@
                     }
                 }
             });
-            
+
             updateMarkersList();
-            showToast('success', 'Marker Added', `${name} at ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+            showToast('success', 'Marker Added', `${catIcon} ${name} at ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
         }
 
-        function addMarkerToList(lat, lng, name) {
+        function getCategoryIcon(cat) {
+            const icons = { checkpoint: '🚩', survey: '📐', landmark: '🏛️', activity: '🎯', boundary: '🚧', other: '📍' };
+            return icons[cat] || '📍';
+        }
+        function getCategoryLabel(cat) {
+            const labels = { checkpoint: 'Checkpoint', survey: 'Survey Point', landmark: 'Landmark', activity: 'Activity', boundary: 'Boundary', other: 'Other' };
+            return labels[cat] || 'Marker';
+        }function addMarkerToList(lat, lng, name) {
             addMarker(lat, lng, name);
         }
 
@@ -3778,15 +3364,19 @@
                 container.innerHTML = '<p style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:1rem;">No markers yet. Right-click map to add.</p>';
                 return;
             }
-            
-            let html = '<table class="markers-table"><thead><tr><th>Name</th><th>Lat</th><th>Lng</th><th>Ele</th><th></th></tr></thead><tbody>';
+
+            let html = '<table class="markers-table"><thead><tr><th>Name</th><th>Category</th><th>Lat</th><th>Lng</th><th>Ele</th><th></th></tr></thead><tbody>';
             markers.forEach((m, i) => {
                 const lat = m.getLatLng().lat;
                 const lng = m.getLatLng().lng;
                 const ele = m.elevation !== undefined ? m.elevation.toFixed(1) : '--';
+                const catIcon = m.category ? getCategoryIcon(m.category) : '';
+                const catLabel = m.category ? getCategoryLabel(m.category) : '--';
+                const nameDisplay = m.name || 'Point ' + (i+1);
                 html += `
                     <tr>
-                        <td>${m.name || 'Point ' + (i+1)}</td>
+                        <td>${catIcon} ${nameDisplay}</td>
+                        <td>${catLabel}</td>
                         <td>${lat.toFixed(4)}</td>
                         <td>${lng.toFixed(4)}</td>
                         <td>${ele}</td>
@@ -3799,9 +3389,7 @@
             });
             html += '</tbody></table>';
             container.innerHTML = html;
-        }
-
-        function flyToMarker(index) {
+        }function flyToMarker(index) {
             const m = markers[index];
             if (m) {
                 map.setView(m.getLatLng(), 16);
@@ -3899,112 +3487,100 @@
                 return;
             }
 
-            tracking.active = true;
-            tracking.positions = [];
-            tracking.startTime = Date.now();
-            
-            document.getElementById('btnStartTrack').disabled = true;
-            document.getElementById('btnStopTrack').disabled = false;
-            document.getElementById('btnTrackToggle').classList.add('active');
+            // Prompt for track name/description before starting
+            openNameDescModal('🛰️ Start GPS Track', 'track', {}, (details) => {
+                tracking.active = true;
+                tracking.positions = [];
+                tracking.startTime = Date.now();
+                tracking.name = details ? details.name : 'Track ' + new Date().toLocaleString();
+                tracking.desc = details ? details.desc : '';
+                tracking.category = details ? details.category : '';
 
-            const options = {
-                enableHighAccuracy: false,
-                timeout: 5000,
-                maximumAge: 30000
-            };
+                document.getElementById('btnStartTrack').disabled = true;
+                document.getElementById('btnStopTrack').disabled = false;
+                document.getElementById('btnTrackToggle').classList.add('active');
 
-            tracking.watchId = navigator.geolocation.watchPosition(
-                (pos) => {
-                    const { latitude, longitude, altitude, speed } = pos.coords;
-                    const latlng = L.latLng(latitude, longitude);
-                    
-                    tracking.positions.push({
-                        lat: latitude,
-                        lng: longitude,
-                        ele: altitude,
-                        speed: speed,
-                        time: Date.now()
-                    });
+                const options = {
+                    enableHighAccuracy: false,
+                    timeout: 5000,
+                    maximumAge: 30000
+                };
 
-                    if (!tracking.polyline) {
-                        tracking.polyline = L.polyline([], {
-                            color: '#22c55e',
-                            weight: 4,
-                            opacity: 0.9
-                        }).addTo(map);
-                    }
-                    tracking.polyline.addLatLng(latlng);
+                tracking.watchId = navigator.geolocation.watchPosition(
+                    (pos) => {
+                        const { latitude, longitude, altitude, speed } = pos.coords;
+                        const latlng = L.latLng(latitude, longitude);
 
-                    if (!tracking.marker) {
-                        tracking.marker = L.marker(latlng, {
-                            icon: L.divIcon({
-                                className: 'track-marker',
-                                html: '<div style="width:16px;height:16px;background:#22c55e;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>',
-                                iconSize: [16, 16],
-                                iconAnchor: [8, 8]
-                            })
-                        }).addTo(map);
-                    } else {
-                        tracking.marker.setLatLng(latlng);
-                    }
+                        tracking.positions.push({
+                            lat: latitude,
+                            lng: longitude,
+                            ele: altitude,
+                            speed: speed,
+                            time: Date.now()
+                        });
 
-                    updateTrackStats();
-                    updateMobileMenuState();
-                },
-                (err) => {
-                    console.warn('GPS error:', err);
-                },
-                options
-            );
+                        if (!tracking.polyline) {
+                            tracking.polyline = L.polyline([], {
+                                color: '#22c55e',
+                                weight: 4,
+                                opacity: 0.9
+                            }).addTo(map);
+                        }
+                        tracking.polyline.addLatLng(latlng);
 
-            showToast('success', 'Tracking Started', 'GPS recording active');
-        }
+                        if (!tracking.marker) {
+                            tracking.marker = L.marker(latlng, {
+                                icon: L.divIcon({
+                                    className: 'track-marker',
+                                    html: '<div style="width:16px;height:16px;background:#22c55e;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>',
+                                    iconSize: [16, 16],
+                                    iconAnchor: [8, 8]
+                                })
+                            }).addTo(map);
+                        } else {
+                            tracking.marker.setLatLng(latlng);
+                        }
 
-        function stopTracking() {
+                        updateTrackStats();
+                        updateMobileMenuState();
+                    },
+                    (err) => {
+                        console.warn('GPS error:', err);
+                    },
+                    options
+                );
+
+                showToast('success', 'Tracking Started', tracking.name);
+            });
+        }function stopTracking() {
             tracking.active = false;
             if (tracking.watchId !== null) {
                 navigator.geolocation.clearWatch(tracking.watchId);
                 tracking.watchId = null;
             }
-            
+
             document.getElementById('btnStartTrack').disabled = false;
             document.getElementById('btnStopTrack').disabled = true;
             document.getElementById('btnTrackToggle').classList.remove('active');
 
             if (tracking.positions.length > 0) {
-                // Save track record
-                const line = turf.lineString(tracking.positions.map(p => [p.lng, p.lat]));
-                const dist = turf.length(line, { units: 'kilometers' });
-                const elapsed = Math.floor((Date.now() - tracking.startTime) / 1000);
-                const mins = Math.floor(elapsed / 60);
-                const secs = elapsed % 60;
-                const duration = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                
-                const record = {
-                    type: 'track',
-                    name: `Track ${savedRecords.filter(r => r.type === 'track').length + 1}`,
-                    distance: dist,
-                    duration: duration,
-                    pointCount: tracking.positions.length,
-                    points: tracking.positions.map(p => ({ lat: p.lat, lng: p.lng, ele: p.ele, time: p.time })),
+                // Save track to tracks array with metadata
+                tracks.push({
+                    id: Date.now(),
+                    name: tracking.name || 'Track ' + new Date().toLocaleString(),
+                    desc: tracking.desc || '',
+                    category: tracking.category || '',
+                    positions: [...tracking.positions],
                     startTime: tracking.startTime,
                     endTime: Date.now(),
-                    avgSpeed: tracking.positions.filter(p => p.speed).length > 0 
-                        ? tracking.positions.filter(p => p.speed).reduce((a, b) => a + b.speed, 0) / tracking.positions.filter(p => p.speed).length * 3.6 
-                        : 0,
-                    crs: 'EPSG:4326'
-                };
-                
-                record.mapLayer = tracking.polyline;
-                addSavedRecord(record);
-                
-                showToast('success', 'Track Saved', `${tracking.positions.length} points, ${dist.toFixed(2)} km`);
+                    polyline: tracking.polyline,
+                    marker: tracking.marker
+                });
+                showToast('success', 'Track Saved', `${tracking.name || 'Track'}: ${tracking.positions.length} points recorded`);
             }
-            
-            updateMobileMenuState();
-        }
 
-        function clearTrack() {
+            updateMobileMenuState();
+        }function clearTrack() {
             if (tracking.polyline) {
                 map.removeLayer(tracking.polyline);
                 tracking.polyline = null;
@@ -4057,44 +3633,61 @@
         }
 
         // ============================================
-        // ELEVATION
+        // TRACKS LIST (Saved Tracks)
         // ============================================
-        async function queryElevation(lat, lng, debounce = false, callback = null) {
-            if (debounce) {
-                if (window.elevationTimeout) clearTimeout(window.elevationTimeout);
-                window.elevationTimeout = setTimeout(() => doQueryElevation(lat, lng, callback), 200);
-            } else {
-                doQueryElevation(lat, lng, callback);
+        function updateTracksList() {
+            const container = document.getElementById('tracksList');
+            if (!container) return;
+            if (tracks.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:1rem;">No saved tracks yet. Start GPS tracking to record.</p>';
+                return;
             }
-        }
 
-        async function doQueryElevation(lat, lng, callback) {
-            try {
-                const response = await fetch(`https://api.opentopodata.org/v1/srtm90m?locations=${lat},${lng}`);
-                const data = await response.json();
-                if (data.results && data.results[0]) {
-                    const ele = data.results[0].elevation;
-                    document.getElementById('ele').textContent = ele !== null ? ele.toFixed(1) : '--';
-                    if (callback) callback(ele);
-                }
-            } catch (e) {
-                document.getElementById('ele').textContent = '--';
-                if (callback) callback(null);
-            }
-        }
+            let html = '';
+            tracks.slice().reverse().forEach((t, i) => {
+                const catIcon = t.category ? getCategoryIcon(t.category) : '🛰️';
+                const descDisplay = t.desc ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">${t.desc}</div>` : '';
+                const duration = t.startTime ? Math.floor((t.endTime - t.startTime) / 1000) : 0;
+                const mins = Math.floor(duration / 60);
+                const secs = duration % 60;
+                const timeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 
-        function queryElevationContext() {
-            if (!contextMenuLatLng) return;
-            queryElevation(contextMenuLatLng.lat, contextMenuLatLng.lng, false, (ele) => {
-                showToast('info', 'Elevation', 
-                    ele !== null 
-                    ? `Elevation at this point: ${ele.toFixed(1)}m` 
-                    : 'Elevation data unavailable');
+                html += `
+                    <div class="measure-item" style="flex-direction:column;align-items:flex-start;gap:0.3rem;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                            <div style="display:flex;align-items:center;gap:0.5rem;">
+                                <span class="measure-item-type coordinate">${catIcon} Track</span>
+                                <strong style="color:var(--text-primary);">${t.name}</strong>
+                            </div>
+                            <button class="measure-item-delete" onclick="deleteTrack(${tracks.length - 1 - i})" title="Delete">🗑️</button>
+                        </div>
+                        <div style="font-size:0.8rem;color:var(--text-secondary);">
+                            ${t.positions.length} points • ${timeStr} • ${new Date(t.startTime).toLocaleDateString()}
+                        </div>
+                        ${descDisplay}
+                    </div>
+                `;
             });
-            hideContextMenu();
+            container.innerHTML = html;
         }
 
-        function closeElevation() {
+        function deleteTrack(index) {
+            const t = tracks[index];
+            if (t && t.polyline) map.removeLayer(t.polyline);
+            if (t && t.marker) map.removeLayer(t.marker);
+            tracks.splice(index, 1);
+            updateTracksList();
+        }
+
+        function clearAllTracks() {
+            tracks.forEach(t => {
+                if (t.polyline) map.removeLayer(t.polyline);
+                if (t.marker) map.removeLayer(t.marker);
+            });
+            tracks = [];
+            updateTracksList();
+            showToast('info', 'Cleared', 'All saved tracks removed');
+        }function closeElevation() {
             document.getElementById('elevationContainer').classList.remove('visible');
             setTimeout(() => map.invalidateSize(), 300);
         }
@@ -4320,16 +3913,18 @@
         function performExport() {
             const format = document.getElementById('exportFormat').value;
             const dataType = document.getElementById('exportData').value;
-            
+
             let data = [];
-            
+
             switch(dataType) {
                 case 'markers':
                     data = markers.map(m => ({
                         lat: m.getLatLng().lat,
                         lng: m.getLatLng().lng,
                         ele: m.elevation || null,
-                        name: m.name || 'Point'
+                        name: m.name || 'Point',
+                        desc: m.desc || '',
+                        category: m.category || ''
                     }));
                     break;
                 case 'route':
@@ -4337,40 +3932,35 @@
                         lat: p.lat,
                         lng: p.lng,
                         ele: null,
-                        name: `Route Point ${i+1}`
+                        name: `Route Point ${i+1}`,
+                        desc: '',
+                        category: ''
                     }));
                     break;
                 case 'track':
-                    data = tracking.positions;
+                    data = tracking.positions.map(p => ({
+                        ...p,
+                        name: tracking.name || 'Track',
+                        desc: tracking.desc || '',
+                        category: tracking.category || ''
+                    }));
                     break;
                 case 'measurements':
                     data = measureHistory.map((m, i) => ({
                         lat: null,
                         lng: null,
                         ele: null,
-                        name: `Measurement ${i+1}: ${m.label}`
-                    }));
-                    break;
-                case 'saved':
-                    data = savedRecords.map((r, i) => ({
-                        lat: r.lat || (r.points && r.points[0] ? r.points[0].lat : null),
-                        lng: r.lng || (r.points && r.points[0] ? r.points[0].lng : null),
-                        ele: r.elevation || null,
-                        name: r.name || `Record ${i+1}`,
-                        type: r.type
+                        name: m.name || `Measurement ${i+1}`,
+                        desc: m.desc || '',
+                        category: m.category || '',
+                        label: m.label
                     }));
                     break;
                 case 'all':
                     data = [
-                        ...markers.map(m => ({ lat: m.getLatLng().lat, lng: m.getLatLng().lng, ele: m.elevation, name: m.name, type: 'marker' })),
-                        ...tracking.positions.map(p => ({ ...p, type: 'track' })),
-                        ...measureHistory.map(m => ({ lat: null, lng: null, name: m.label, type: 'measurement' })),
-                        ...savedRecords.map(r => ({
-                            lat: r.lat || (r.points && r.points[0] ? r.points[0].lat : null),
-                            lng: r.lng || (r.points && r.points[0] ? r.points[0].lng : null),
-                            name: r.name,
-                            type: r.type
-                        }))
+                        ...markers.map(m => ({ lat: m.getLatLng().lat, lng: m.getLatLng().lng, ele: m.elevation, name: m.name, desc: m.desc, category: m.category, type: 'marker' })),
+                        ...tracks.flatMap(t => t.positions.map(p => ({ ...p, name: t.name, desc: t.desc, category: t.category, type: 'track' }))),
+                        ...measureHistory.map(m => ({ lat: null, lng: null, name: m.name, desc: m.desc, category: m.category, label: m.label, type: 'measurement' }))
                     ];
                     break;
             }
@@ -4395,6 +3985,8 @@
                     if (document.getElementById('colLng').checked) cols.push('longitude');
                     if (document.getElementById('colElev').checked) cols.push('elevation');
                     if (document.getElementById('colCRS').checked) cols.push('crs');
+                    cols.push('description');
+                    cols.push('category');
 
                     const csvData = data.map((d, i) => {
                         const row = {};
@@ -4404,6 +3996,8 @@
                         if (cols.includes('longitude')) row.longitude = d.lng;
                         if (cols.includes('elevation')) row.elevation = d.ele || '';
                         if (cols.includes('crs')) row.crs = selectedCRS;
+                        row.description = d.desc || '';
+                        row.category = d.category || '';
                         return row;
                     });
 
@@ -4421,6 +4015,8 @@
                             properties: {
                                 id: i + 1,
                                 name: d.name || `Point_${i+1}`,
+                                description: d.desc || '',
+                                category: d.category || '',
                                 elevation: d.ele,
                                 crs: selectedCRS
                             },
@@ -4451,13 +4047,18 @@
             downloadFile(content, `laos_export_${dataType}_${Date.now()}.${extension}`, mime);
             closeModal('exportModal');
             showToast('success', 'Exported', `${data.length} items exported as ${format.toUpperCase()}`);
-        }
-
-        function generateKML(data, crs) {
+        }function generateKML(data, crs) {
             const placemarks = data.filter(d => d.lat !== null).map((d, i) => `
                 <Placemark>
                     <name>${d.name || `Point ${i+1}`}</name>
-                    <description>Lat: ${d.lat}, Lng: ${d.lng}${d.ele ? ', Ele: ' + d.ele : ''}</description>
+                    <description>
+                        <![CDATA[
+                        <b>Lat:</b> ${d.lat}<br>
+                        <b>Lng:</b> ${d.lng}${d.ele ? '<br><b>Elev:</b> ' + d.ele : ''}
+                        ${d.desc ? '<br><b>Description:</b> ' + d.desc : ''}
+                        ${d.category ? '<br><b>Category:</b> ' + getCategoryLabel(d.category) : ''}
+                        ]]>
+                    </description>
                     <Point>
                         <coordinates>${d.lng},${d.lat}${d.ele ? ',' + d.ele : ''}</coordinates>
                     </Point>
@@ -4478,6 +4079,8 @@
             const trkpts = data.filter(d => d.lat !== null).map(d => `
                 <trkpt lat="${d.lat}" lon="${d.lng}">
                     ${d.ele ? `<ele>${d.ele}</ele>` : ''}
+                    <name>${d.name || 'Waypoint'}</name>
+                    ${d.desc ? `<desc>${d.desc}</desc>` : ''}
                     <time>${new Date().toISOString()}</time>
                 </trkpt>
             `).join('');
@@ -4485,7 +4088,8 @@
             return `<?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="Laos GIS Mapper">
     <trk>
-        <name>Exported Track</name>
+        <name>${data[0]?.name || 'Exported Track'}</name>
+        ${data[0]?.desc ? `<desc>${data[0].desc}</desc>` : ''}
         <trkseg>
             ${trkpts}
         </trkseg>
@@ -4503,12 +4107,6 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-        }
-
-        function exportSingleRecord() {
-            if (!currentViewingRecord) return;
-            exportRecord(savedRecords.indexOf(currentViewingRecord));
-            closeModal('detailModal');
         }
 
         // ============================================
@@ -4570,7 +4168,53 @@
             }, 4000);
         }
 
-        // Keyboard shortcuts
+                // ============================================
+        // NAME / DESCRIPTION MODAL FUNCTIONS
+        // ============================================
+        let nameDescCallback = null;
+        let nameDescData = { type: '', tempData: null };
+
+        function openNameDescModal(title, type, tempData, callback) {
+            nameDescCallback = callback;
+            nameDescData = { type, tempData };
+            document.getElementById('nameDescTitle').textContent = title;
+            document.getElementById('nameDescName').value = '';
+            document.getElementById('nameDescDesc').value = '';
+            document.getElementById('nameDescCategory').value = '';
+            document.getElementById('nameDescModal').classList.add('active');
+            setTimeout(() => document.getElementById('nameDescName').focus(), 100);
+        }
+
+        function closeNameDescModal() {
+            document.getElementById('nameDescModal').classList.remove('active');
+            if (nameDescCallback) {
+                nameDescCallback(null);
+                nameDescCallback = null;
+            }
+        }
+
+        function saveNameDesc() {
+            const name = document.getElementById('nameDescName').value.trim();
+            const desc = document.getElementById('nameDescDesc').value.trim();
+            const category = document.getElementById('nameDescCategory').value;
+            document.getElementById('nameDescModal').classList.remove('active');
+            if (nameDescCallback) {
+                nameDescCallback({ name: name || 'Untitled', desc, category });
+                nameDescCallback = null;
+            }
+        }
+
+        // Allow Enter to save in name field
+        document.addEventListener('DOMContentLoaded', () => {
+            const nameInput = document.getElementById('nameDescName');
+            if (nameInput) {
+                nameInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') { e.preventDefault(); saveNameDesc(); }
+                });
+            }
+        });
+
+// Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 if (measureMode.active) {
@@ -4578,7 +4222,6 @@
                 } else {
                     closeModal('exportModal');
                     closeModal('importModal');
-                    closeModal('detailModal');
                     closeMobileMenu();
                     hideContextMenu();
                 }
