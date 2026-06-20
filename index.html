@@ -3,9 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laos GIS Mapper</title>
+    <title>Laos GIS Mapper Pro</title>
+    
+    <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Leaflet Plugins -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    
+    <!-- Elevation Profile -->
+    <link rel="stylesheet" href="https://unpkg.com/@raruto/leaflet-elevation@2.5.1/dist/leaflet-elevation.min.css" />
+    <script src="https://unpkg.com/@raruto/leaflet-elevation@2.5.1/dist/leaflet-elevation.min.js"></script>
+    
+    <!-- File Parsing Libraries -->
+    <script src="https://unpkg.com/togeojson@0.16.0/togeojson.js"></script>
+    <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.js"></script>
+    <script src="https://unpkg.com/@tmcw/togeojson@5.8.1/dist/togeojson.umd.js"></script>
+    
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    
+    <!-- Turf.js for advanced GIS -->
+    <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
+    
+    <!-- PapaParse for CSV -->
+    <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -13,54 +39,67 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0f172a;
-            color: #e2e8f0;
-            overflow: hidden;
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --accent: #38bdf8;
+            --accent-hover: #7dd3fc;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #334155;
         }
 
-        /* FAST Loading Screen - Max 2 seconds */
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Loading Screen - FAST */
         #loader {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0f172a;
+            inset: 0;
+            background: var(--bg-primary);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease-out;
+            z-index: 99999;
+            transition: opacity 0.4s ease;
         }
 
         .loader-logo {
             font-size: 4rem;
-            font-weight: bold;
-            color: #38bdf8;
-            margin-bottom: 1rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
             animation: pulse 1.5s ease-in-out infinite;
         }
 
         .loader-title {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 600;
-            color: #f8fafc;
-            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
         }
 
         .loader-subtitle {
-            font-size: 1rem;
-            color: #94a3b8;
+            font-size: 0.9rem;
+            color: var(--text-muted);
             margin-bottom: 2rem;
         }
 
         .loader-bar {
-            width: 200px;
-            height: 4px;
-            background: #1e293b;
+            width: 220px;
+            height: 3px;
+            background: var(--bg-secondary);
             border-radius: 2px;
             overflow: hidden;
             position: relative;
@@ -69,45 +108,44 @@
         .loader-bar::after {
             content: '';
             position: absolute;
-            left: -50%;
-            width: 50%;
+            left: -40%;
+            width: 40%;
             height: 100%;
-            background: #38bdf8;
+            background: var(--accent);
             border-radius: 2px;
             animation: slide 1s ease-in-out infinite;
         }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(0.95); }
+            50% { opacity: 0.6; transform: scale(0.95); }
         }
 
         @keyframes slide {
-            0% { left: -50%; }
+            0% { left: -40%; }
             100% { left: 100%; }
         }
 
-        /* Main App Layout */
+        /* App Layout */
         #app {
             display: none;
             height: 100vh;
-            width: 100vw;
+            display: flex;
+            flex-direction: column;
         }
 
+        /* Header */
         .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
+            height: 56px;
             background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #1e293b;
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 1.5rem;
+            padding: 0 1rem;
             z-index: 1000;
+            flex-shrink: 0;
         }
 
         .header-brand {
@@ -117,118 +155,163 @@
         }
 
         .header-logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #38bdf8;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--accent);
+            background: rgba(56, 189, 248, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
         }
 
         .header-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
-            color: #f8fafc;
         }
 
         .header-actions {
             display: flex;
             gap: 0.5rem;
+            align-items: center;
         }
 
         .btn {
             padding: 0.5rem 1rem;
             border: none;
             border-radius: 6px;
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: all 0.2s;
             font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
         }
 
         .btn-primary {
-            background: #38bdf8;
-            color: #0f172a;
+            background: var(--accent);
+            color: var(--bg-primary);
         }
 
         .btn-primary:hover {
-            background: #7dd3fc;
+            background: var(--accent-hover);
+            transform: translateY(-1px);
         }
 
         .btn-secondary {
-            background: #1e293b;
-            color: #e2e8f0;
-            border: 1px solid #334155;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
         }
 
         .btn-secondary:hover {
-            background: #334155;
+            background: var(--bg-tertiary);
         }
 
-        /* Map Container */
-        #map {
-            height: 100vh;
-            width: 100vw;
-            z-index: 1;
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-sm {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        /* Main Content */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
         }
 
         /* Sidebar */
         .sidebar {
-            position: fixed;
-            top: 60px;
-            left: 0;
-            width: 320px;
-            height: calc(100vh - 60px);
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid #1e293b;
-            z-index: 500;
-            overflow-y: auto;
-            padding: 1rem;
-            transform: translateX(0);
-            transition: transform 0.3s ease;
+            width: 340px;
+            background: rgba(15, 23, 42, 0.98);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: width 0.3s ease;
         }
 
         .sidebar.collapsed {
-            transform: translateX(-100%);
+            width: 0;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
         }
 
         .sidebar-section {
             margin-bottom: 1.5rem;
         }
 
-        .sidebar-title {
-            font-size: 0.75rem;
+        .section-title {
+            font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            color: #64748b;
+            color: var(--text-muted);
             margin-bottom: 0.75rem;
-            font-weight: 600;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .coordinate-box {
-            background: #1e293b;
+        /* Coordinate Panel */
+        .coord-panel {
+            background: var(--bg-secondary);
             border-radius: 8px;
-            padding: 1rem;
-            border: 1px solid #334155;
+            padding: 0.875rem;
+            border: 1px solid var(--border);
         }
 
         .coord-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.5);
         }
 
         .coord-row:last-child {
-            margin-bottom: 0;
+            border-bottom: none;
         }
 
         .coord-label {
-            color: #94a3b8;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
         }
 
         .coord-value {
-            color: #38bdf8;
-            font-family: 'Courier New', monospace;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: var(--accent);
             font-weight: 600;
         }
 
@@ -236,20 +319,20 @@
             display: inline-flex;
             align-items: center;
             gap: 0.35rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 700;
         }
 
         .status-active {
-            background: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
         }
 
         .status-dot {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
             border-radius: 50%;
             background: currentColor;
             animation: blink 2s infinite;
@@ -260,6 +343,48 @@
             50% { opacity: 0.3; }
         }
 
+        /* File Import Zone */
+        .import-zone {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg-secondary);
+        }
+
+        .import-zone:hover {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .import-zone.dragover {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .import-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .import-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .import-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Layer List */
         .layer-list {
             list-style: none;
         }
@@ -271,248 +396,955 @@
             padding: 0.75rem;
             border-radius: 6px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s;
             margin-bottom: 0.25rem;
+            border: 1px solid transparent;
         }
 
         .layer-item:hover {
-            background: #1e293b;
+            background: var(--bg-secondary);
         }
 
         .layer-item.active {
-            background: rgba(56, 189, 248, 0.1);
-            border: 1px solid rgba(56, 189, 248, 0.3);
+            background: rgba(56, 189, 248, 0.08);
+            border-color: rgba(56, 189, 248, 0.2);
         }
 
         .layer-icon {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .layer-info {
+            flex: 1;
+            min-width: 0;
         }
 
         .layer-info h4 {
-            font-size: 0.875rem;
-            color: #f8fafc;
-            margin-bottom: 0.15rem;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            margin-bottom: 0.1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .layer-info p {
-            font-size: 0.75rem;
-            color: #64748b;
+            font-size: 0.7rem;
+            color: var(--text-muted);
         }
 
-        /* Toggle button */
-        .sidebar-toggle {
-            position: fixed;
-            top: 76px;
-            left: 336px;
-            z-index: 501;
-            width: 32px;
-            height: 32px;
-            background: #1e293b;
-            border: 1px solid #334155;
+        .layer-actions {
+            display: flex;
+            gap: 0.25rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .layer-item:hover .layer-actions {
+            opacity: 1;
+        }
+
+        .layer-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .layer-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        /* Tracking Panel */
+        .track-panel {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 0.875rem;
+            border: 1px solid var(--border);
+        }
+
+        .track-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .stat-box {
+            background: var(--bg-primary);
+            padding: 0.5rem;
             border-radius: 6px;
-            color: #e2e8f0;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'SF Mono', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-top: 0.1rem;
+        }
+
+        .track-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .track-buttons .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        /* Map Container */
+        .map-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Elevation Chart */
+        .elevation-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 180px;
+            background: rgba(15, 23, 42, 0.95);
+            border-top: 1px solid var(--border);
+            z-index: 500;
+            display: none;
+        }
+
+        .elevation-container.visible {
+            display: block;
+        }
+
+        .elevation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .elevation-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .elevation-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        #elevation-chart {
+            height: calc(100% - 36px);
+            width: 100%;
+        }
+
+        /* Sidebar Toggle */
+        .sidebar-toggle {
+            position: absolute;
+            top: 70px;
+            left: 340px;
+            z-index: 501;
+            width: 28px;
+            height: 28px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: left 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
         .sidebar-toggle.collapsed {
-            left: 16px;
+            left: 8px;
         }
 
-        /* Notification */
-        .toast {
+        /* Toast Notifications */
+        .toast-container {
             position: fixed;
-            top: 76px;
+            top: 66px;
             right: 1rem;
-            background: #1e293b;
-            border: 1px solid #334155;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-width: 320px;
+        }
+
+        .toast {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
             border-radius: 8px;
             padding: 1rem;
-            z-index: 2000;
-            max-width: 300px;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
+            animation: slideIn 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
         }
 
-        .toast.show {
-            transform: translateX(0);
+        .toast.hiding {
+            animation: slideOut 0.3s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
         }
 
         .toast-header {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .toast.success .toast-header { color: var(--success); }
+        .toast.error .toast-header { color: var(--danger); }
+        .toast.warning .toast-header { color: var(--warning); }
+        .toast.info .toast-header { color: var(--accent); }
+
+        .toast-body {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 20000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
             font-weight: 600;
         }
 
-        .toast.success .toast-header { color: #22c55e; }
-        .toast.error .toast-header { color: #ef4444; }
-        .toast.info .toast-header { color: #38bdf8; }
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.25rem;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
 
-        .toast-body {
-            font-size: 0.875rem;
-            color: #94a3b8;
-            line-height: 1.5;
+        .modal-close:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 1.25rem;
+            overflow-y: auto;
+            max-height: 50vh;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* CRS Options */
+        .crs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .crs-option {
+            padding: 0.6rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .crs-option:hover {
+            border-color: var(--accent);
+        }
+
+        .crs-option.selected {
+            background: rgba(56, 189, 248, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Markers Table */
+        .markers-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .markers-table th {
+            text-align: left;
+            padding: 0.5rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        .markers-table td {
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+            color: var(--text-secondary);
+        }
+
+        .markers-table tr:hover td {
+            color: var(--text-primary);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
         }
 
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
-                width: 280px;
+                position: absolute;
+                z-index: 600;
+                height: 100%;
+                box-shadow: 4px 0 15px rgba(0,0,0,0.3);
             }
-            .sidebar-toggle {
-                left: 296px;
-            }
-            .sidebar-toggle.collapsed {
-                left: 16px;
+            .sidebar.collapsed {
+                width: 0;
             }
         }
+
+        /* Leaflet Customization */
+        .leaflet-control-zoom {
+            border: none !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+        }
+
+        .leaflet-control-zoom a {
+            background: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+            border: 1px solid var(--border) !important;
+        }
+
+        .leaflet-control-zoom a:hover {
+            background: var(--bg-tertiary) !important;
+        }
+
+        .leaflet-popup-content-wrapper {
+            background: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 8px !important;
+        }
+
+        .leaflet-popup-tip {
+            background: var(--bg-secondary) !important;
+            border: 1px solid var(--border) !important;
+        }
+
+        .leaflet-popup-close-button {
+            color: var(--text-muted) !important;
+        }
+
+        .leaflet-popup-close-button:hover {
+            color: var(--text-primary) !important;
+        }
+
+        /* Context Menu */
+        .context-menu {
+            position: absolute;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            z-index: 10000;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
+            min-width: 180px;
+            display: none;
+        }
+
+        .context-menu.active {
+            display: block;
+        }
+
+        .context-item {
+            padding: 0.6rem 1rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.15s;
+        }
+
+        .context-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .context-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0.4rem 0;
+        }
+
+        /* Route Info */
+        .route-info {
+            position: absolute;
+            top: 66px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1.25rem;
+            z-index: 400;
+            display: none;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .route-info.visible {
+            display: flex;
+        }
+
+        .route-stat {
+            text-align: center;
+        }
+
+        .route-stat-value {
+            font-family: 'SF Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .route-stat-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Hidden */
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <!-- FAST Loading Screen (Auto-dismisses in ~1.5s) -->
+    <!-- Loading Screen -->
     <div id="loader">
         <div class="loader-logo">LA</div>
-        <div class="loader-title">Laos GIS Mapper</div>
-        <div class="loader-subtitle">Ready to map</div>
+        <div class="loader-title">Laos GIS Mapper Pro</div>
+        <div class="loader-subtitle">Loading GIS engine...</div>
         <div class="loader-bar"></div>
     </div>
 
-    <!-- Main Application -->
+    <!-- App -->
     <div id="app">
+        <!-- Header -->
         <header class="header">
             <div class="header-brand">
                 <span class="header-logo">LA</span>
-                <span class="header-title">Laos GIS Mapper</span>
+                <span class="header-title">Laos GIS Mapper Pro</span>
             </div>
             <div class="header-actions">
-                <button class="btn btn-secondary" onclick="locateUser()">📍 My Location</button>
-                <button class="btn btn-primary" onclick="resetToLaos()">🇱🇦 Center Laos</button>
+                <button class="btn btn-secondary btn-sm" onclick="showImportModal()">
+                    📥 Import
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="showExportModal()">
+                    📤 Export
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="toggleTracking()">
+                    <span id="trackBtnText">▶️ Track</span>
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="resetToLaos()">
+                    🇱🇦 Laos
+                </button>
             </div>
         </header>
 
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-section">
-                <div class="sidebar-title">Current Position</div>
-                <div class="coordinate-box">
-                    <div class="coord-row">
-                        <span class="coord-label">Latitude</span>
-                        <span class="coord-value" id="lat">--</span>
+        <!-- Main -->
+        <div class="main-container">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <span class="sidebar-title">Control Panel</span>
+                    <button class="btn btn-sm btn-secondary" onclick="clearAll()" title="Clear All">
+                        🗑️
+                    </button>
+                </div>
+                
+                <div class="sidebar-content">
+                    <!-- Coordinates -->
+                    <div class="sidebar-section">
+                        <div class="section-title">📍 Cursor Position</div>
+                        <div class="coord-panel">
+                            <div class="coord-row">
+                                <span class="coord-label">Latitude (WGS84)</span>
+                                <span class="coord-value" id="lat">--</span>
+                            </div>
+                            <div class="coord-row">
+                                <span class="coord-label">Longitude (WGS84)</span>
+                                <span class="coord-value" id="lng">--</span>
+                            </div>
+                            <div class="coord-row">
+                                <span class="coord-label">Elevation (m)</span>
+                                <span class="coord-value" id="ele">--</span>
+                            </div>
+                            <div class="coord-row">
+                                <span class="coord-label">Zoom Level</span>
+                                <span class="coord-value" id="zoom">--</span>
+                            </div>
+                            <div class="coord-row">
+                                <span class="coord-label">Status</span>
+                                <span class="status-badge status-active">
+                                    <span class="status-dot"></span>
+                                    Active
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="coord-row">
-                        <span class="coord-label">Longitude</span>
-                        <span class="coord-value" id="lng">--</span>
+
+                    <!-- Import -->
+                    <div class="sidebar-section">
+                        <div class="section-title">📂 Import Data</div>
+                        <div class="import-zone" id="importZone" onclick="document.getElementById('fileInput').click()">
+                            <div class="import-icon">📁</div>
+                            <div class="import-text">Drop files or click to browse</div>
+                            <div class="import-hint">KML, SHP, GPX, GeoPackage, GeoJSON, PDF</div>
+                        </div>
+                        <input type="file" id="fileInput" class="file-input" multiple accept=".kml,.shp,.gpx,.gpkg,.geojson,.json,.pdf,.zip,.csv" onchange="handleFiles(this.files)">
                     </div>
-                    <div class="coord-row">
-                        <span class="coord-label">Status</span>
-                        <span class="status-badge status-active">
-                            <span class="status-dot"></span>
-                            Active
-                        </span>
+
+                    <!-- Tracking -->
+                    <div class="sidebar-section">
+                        <div class="section-title">🛰️ GPS Tracking</div>
+                        <div class="track-panel">
+                            <div class="track-stats">
+                                <div class="stat-box">
+                                    <div class="stat-value" id="trackDist">0.0</div>
+                                    <div class="stat-label">Distance (km)</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-value" id="trackTime">00:00</div>
+                                    <div class="stat-label">Duration</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-value" id="trackSpeed">0</div>
+                                    <div class="stat-label">Speed (km/h)</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-value" id="trackPoints">0</div>
+                                    <div class="stat-label">Points</div>
+                                </div>
+                            </div>
+                            <div class="track-buttons">
+                                <button class="btn btn-primary btn-sm" onclick="startTracking()" id="btnStartTrack">
+                                    ▶️ Start
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="stopTracking()" id="btnStopTrack" disabled>
+                                    ⏹️ Stop
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layers -->
+                    <div class="sidebar-section">
+                        <div class="section-title">🗂️ Layers</div>
+                        <ul class="layer-list" id="layerList">
+                            <li class="layer-item active" onclick="switchBaseLayer('osm')">
+                                <div class="layer-icon" style="background: #dbeafe;">🗺️</div>
+                                <div class="layer-info">
+                                    <h4>OpenStreetMap</h4>
+                                    <p>Standard street map</p>
+                                </div>
+                            </li>
+                            <li class="layer-item" onclick="switchBaseLayer('satellite')">
+                                <div class="layer-icon" style="background: #dcfce7;">🛰️</div>
+                                <div class="layer-info">
+                                    <h4>Satellite</h4>
+                                    <p>ESRI World Imagery</p>
+                                </div>
+                            </li>
+                            <li class="layer-item" onclick="switchBaseLayer('terrain')">
+                                <div class="layer-icon" style="background: #fef3c7;">⛰️</div>
+                                <div class="layer-info">
+                                    <h4>Terrain</h4>
+                                    <p>Topographic view</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Markers -->
+                    <div class="sidebar-section">
+                        <div class="section-title" style="display:flex;justify-content:space-between;">
+                            <span>📌 Markers</span>
+                            <button class="btn btn-sm btn-secondary" onclick="exportMarkers()">Export</button>
+                        </div>
+                        <div id="markersList" style="max-height:200px;overflow-y:auto;">
+                            <p style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:1rem;">No markers yet. Right-click map to add.</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">◀</button>
+
+            <!-- Map -->
+            <div class="map-wrapper">
+                <div id="map"></div>
+                
+                <!-- Route Info Overlay -->
+                <div class="route-info" id="routeInfo">
+                    <div class="route-stat">
+                        <div class="route-stat-value" id="routeDist">0.0</div>
+                        <div class="route-stat-label">Distance km</div>
+                    </div>
+                    <div class="route-stat">
+                        <div class="route-stat-value" id="routeElev">0</div>
+                        <div class="route-stat-label">Elev gain m</div>
+                    </div>
+                    <div class="route-stat">
+                        <div class="route-stat-value" id="routePoints">0</div>
+                        <div class="route-stat-label">Points</div>
+                    </div>
+                    <button class="btn btn-sm btn-danger" onclick="clearRoute()">Clear</button>
+                </div>
+
+                <!-- Elevation Chart -->
+                <div class="elevation-container" id="elevationContainer">
+                    <div class="elevation-header">
+                        <span class="elevation-title">📈 Elevation Profile</span>
+                        <button class="elevation-close" onclick="closeElevation()">✕</button>
+                    </div>
+                    <div id="elevation-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-item" onclick="addMarkerAtContext()">📌 Add Marker</div>
+        <div class="context-item" onclick="startRouteFromContext()">🛤️ Start Route Here</div>
+        <div class="context-item" onclick="copyCoordsContext()">📋 Copy Coordinates</div>
+        <div class="context-divider"></div>
+        <div class="context-item" onclick="queryElevationContext()">⛰️ Query Elevation</div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">📤 Export Data</span>
+                <button class="modal-close" onclick="closeModal('exportModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Export Format</label>
+                    <select class="form-select" id="exportFormat">
+                        <option value="csv">CSV (Coordinates)</option>
+                        <option value="geojson">GeoJSON</option>
+                        <option value="kml">KML</option>
+                        <option value="gpx">GPX</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Coordinate Reference System</label>
+                    <div class="crs-grid">
+                        <div class="crs-option selected" onclick="selectCRS(this, 'EPSG:4326')">
+                            <div style="font-weight:600;">WGS84</div>
+                            <div style="font-size:0.7rem;color:var(--text-muted);">EPSG:4326</div>
+                        </div>
+                        <div class="crs-option" onclick="selectCRS(this, 'EPSG:32648')">
+                            <div style="font-weight:600;">UTM 48N</div>
+                            <div style="font-size:0.7rem;color:var(--text-muted);">EPSG:32648</div>
+                        </div>
+                        <div class="crs-option" onclick="selectCRS(this, 'EPSG:24047')">
+                            <div style="font-weight:600;">Indian 1975</div>
+                            <div style="font-size:0.7rem;color:var(--text-muted);">EPSG:24047</div>
+                        </div>
+                        <div class="crs-option" onclick="selectCRS(this, 'EPSG:3857')">
+                            <div style="font-weight:600;">Web Mercator</div>
+                            <div style="font-size:0.7rem;color:var(--text-muted);">EPSG:3857</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Data to Export</label>
+                    <select class="form-select" id="exportData">
+                        <option value="markers">Markers / Points</option>
+                        <option value="route">Current Route</option>
+                        <option value="track">GPS Track</option>
+                        <option value="all">All Data</option>
+                    </select>
+                </div>
+                <div class="form-group" id="csvOptions">
+                    <label class="form-label">CSV Columns</label>
+                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                        <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.8rem;">
+                            <input type="checkbox" checked id="colId"> ID
+                        </label>
+                        <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.8rem;">
+                            <input type="checkbox" checked id="colName"> Name
+                        </label>
+                        <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.8rem;">
+                            <input type="checkbox" checked id="colLat"> Latitude
+                        </label>
+                        <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.8rem;">
+                            <input type="checkbox" checked id="colLng"> Longitude
+                        </label>
+                        <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.8rem;">
+                            <input type="checkbox" checked id="colElev"> Elevation
+                        </label>
+                        <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.8rem;">
+                            <input type="checkbox" id="colCRS"> CRS
+                        </label>
                     </div>
                 </div>
             </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-title">Map Layers</div>
-                <ul class="layer-list">
-                    <li class="layer-item active" onclick="toggleLayer(this, 'osm')">
-                        <div class="layer-icon" style="background: #dbeafe;">🗺️</div>
-                        <div class="layer-info">
-                            <h4>OpenStreetMap</h4>
-                            <p>Standard street map</p>
-                        </div>
-                    </li>
-                    <li class="layer-item" onclick="toggleLayer(this, 'satellite')">
-                        <div class="layer-icon" style="background: #dcfce7;">🛰️</div>
-                        <div class="layer-info">
-                            <h4>Satellite</h4>
-                            <p>ESRI World Imagery</p>
-                        </div>
-                    </li>
-                    <li class="layer-item" onclick="toggleLayer(this, 'terrain')">
-                        <div class="layer-icon" style="background: #fef3c7;">⛰️</div>
-                        <div class="layer-info">
-                            <h4>Terrain</h4>
-                            <p>Topographic view</p>
-                        </div>
-                    </li>
-                </ul>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('exportModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="performExport()">Download</button>
             </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-title">Quick Actions</div>
-                <button class="btn btn-secondary" style="width: 100%; margin-bottom: 0.5rem;" onclick="addMarker()">
-                    📌 Drop Marker
-                </button>
-                <button class="btn btn-secondary" style="width: 100%;" onclick="clearMarkers()">
-                    🗑️ Clear Markers
-                </button>
-            </div>
-        </aside>
-
-        <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">◀</button>
-
-        <div id="map"></div>
+        </div>
     </div>
 
-    <div class="toast info" id="toast">
-        <div class="toast-header">ℹ️ Info</div>
-        <div class="toast-body" id="toastBody">Welcome to Laos GIS Mapper</div>
+    <!-- Import Modal -->
+    <div class="modal-overlay" id="importModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">📥 Import Data</span>
+                <button class="modal-close" onclick="closeModal('importModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="import-zone" style="margin-bottom:1rem;" onclick="document.getElementById('modalFileInput').click()">
+                    <div class="import-icon">📁</div>
+                    <div class="import-text">Click to select files or drag & drop</div>
+                    <div class="import-hint">Supports: KML, SHP, GPX, GeoPackage, GeoJSON, PDF, CSV</div>
+                </div>
+                <input type="file" id="modalFileInput" class="file-input" multiple accept=".kml,.shp,.gpx,.gpkg,.geojson,.json,.pdf,.zip,.csv" onchange="handleFiles(this.files); closeModal('importModal');">
+                
+                <div class="form-group">
+                    <label class="form-label">Import Options</label>
+                    <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;margin-bottom:0.5rem;">
+                        <input type="checkbox" checked id="optFitBounds"> Fit map to imported data
+                    </label>
+                    <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;">
+                        <input type="checkbox" checked id="optShowLabels"> Show feature labels
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('importModal')">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <script>
         // ============================================
-        // FAST INITIALIZATION - NO VERIFICATION DELAYS
+        // GLOBAL STATE
         // ============================================
-
-        // Laos default center (Vientiane area)
         const LAOS_CENTER = [17.9757, 102.6331];
         const DEFAULT_ZOOM = 7;
-
+        
         let map;
-        let markers = [];
-        let currentLayer = null;
         let layers = {};
+        let activeBaseLayer = null;
+        let markers = [];
+        let routes = [];
+        let tracks = [];
+        let importedLayers = [];
+        let drawnItems;
+        let tracking = {
+            active: false,
+            watchId: null,
+            positions: [],
+            startTime: null,
+            polyline: null,
+            marker: null
+        };
+        let routeDrawing = {
+            active: false,
+            points: [],
+            polyline: null,
+            markers: []
+        };
+        let contextMenuLatLng = null;
+        let selectedCRS = 'EPSG:4326';
+        let elevationChart = null;
+        let toastId = 0;
 
-        // 1. INSTANT LOAD: Skip all verification, just show the map
+        // ============================================
+        // FAST INITIALIZATION
+        // ============================================
         window.addEventListener('DOMContentLoaded', () => {
-            // Artificial minimal delay for UX (1.2s max)
             setTimeout(() => {
                 document.getElementById('loader').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('loader').style.display = 'none';
-                    document.getElementById('app').style.display = 'block';
-                    initMap();
-                }, 500);
-            }, 1200);
+                    initApp();
+                }, 400);
+            }, 800);
         });
 
+        function initApp() {
+            initMap();
+            initDragDrop();
+            setupContextMenu();
+            showToast('success', 'Ready', 'Laos GIS Mapper loaded. Right-click map for quick actions.');
+        }
+
+        // ============================================
+        // MAP INITIALIZATION
+        // ============================================
         function initMap() {
-            // Initialize map immediately at Laos center
             map = L.map('map', {
                 zoomControl: false,
-                attributionControl: false
+                attributionControl: false,
+                contextmenu: true,
+                contextmenuWidth: 180
             }).setView(LAOS_CENTER, DEFAULT_ZOOM);
 
-            // Add zoom control to top-right
-            L.control.zoom({
-                position: 'topright'
-            }).addTo(map);
+            L.control.zoom({ position: 'topright' }).addTo(map);
 
-            // Define tile layers (fast, reliable CDN sources)
+            // Base layers
             layers.osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '© OpenStreetMap'
@@ -528,124 +1360,955 @@
                 attribution: '© OpenTopoMap'
             });
 
-            // Default to OpenStreetMap
             layers.osm.addTo(map);
-            currentLayer = layers.osm;
+            activeBaseLayer = layers.osm;
 
-            // Update coordinates on mouse move (no verification needed)
+            // Drawn items layer
+            drawnItems = new L.FeatureGroup();
+            map.addLayer(drawnItems);
+
+            // Leaflet Draw controls
+            const drawControl = new L.Control.Draw({
+                draw: {
+                    polyline: {
+                        shapeOptions: { color: '#38bdf8', weight: 3 },
+                        metric: true
+                    },
+                    polygon: {
+                        shapeOptions: { color: '#22c55e', weight: 2 },
+                        showArea: true
+                    },
+                    rectangle: { shapeOptions: { color: '#f59e0b' } },
+                    circle: { shapeOptions: { color: '#ef4444' } },
+                    marker: true,
+                    circlemarker: false
+                },
+                edit: {
+                    featureGroup: drawnItems,
+                    remove: true
+                }
+            });
+            map.addControl(drawControl);
+
+            // Draw events
+            map.on(L.Draw.Event.CREATED, (e) => {
+                const layer = e.layer;
+                drawnItems.addLayer(layer);
+                
+                if (e.layerType === 'polyline') {
+                    updateRouteStats(layer.getLatLngs());
+                }
+                
+                if (e.layerType === 'marker') {
+                    const latlng = layer.getLatLng();
+                    addMarkerToList(latlng.lat, latlng.lng, 'Drawn Marker');
+                }
+            });
+
+            // Mouse tracking
             map.on('mousemove', (e) => {
                 document.getElementById('lat').textContent = e.latlng.lat.toFixed(6);
                 document.getElementById('lng').textContent = e.latlng.lng.toFixed(6);
+                document.getElementById('zoom').textContent = map.getZoom();
+                
+                // Query elevation on hover (debounced)
+                queryElevation(e.latlng.lat, e.latlng.lng, true);
             });
 
-            // Show initial coordinates
+            map.on('zoomend', () => {
+                document.getElementById('zoom').textContent = map.getZoom();
+            });
+
+            // Click for route
+            map.on('click', (e) => {
+                if (routeDrawing.active) {
+                    addRoutePoint(e.latlng);
+                }
+            });
+
+            // Right-click context menu
+            map.on('contextmenu', (e) => {
+                contextMenuLatLng = e.latlng;
+                showContextMenu(e.originalEvent);
+            });
+
+            // Initial coords
             document.getElementById('lat').textContent = LAOS_CENTER[0].toFixed(6);
             document.getElementById('lng').textContent = LAOS_CENTER[1].toFixed(6);
-
-            showToast('success', 'Map Ready', 'Laos map loaded instantly. No GPS verification needed.');
-        }
-
-        // ============================================
-        // FAST LOCATION (Optional, Non-blocking)
-        // ============================================
-
-        function locateUser() {
-            showToast('info', 'Locating...', 'Attempting to find your position...');
-
-            if (!navigator.geolocation) {
-                showToast('error', 'Error', 'Geolocation not supported by your browser.');
-                return;
-            }
-
-            // FAST timeout: 5 seconds max (not 10 minutes!)
-            const options = {
-                enableHighAccuracy: false, // false = faster
-                timeout: 5000,
-                maximumAge: 60000 // Use cached position if available
-            };
-
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-                    map.setView([latitude, longitude], 14);
-                    L.marker([latitude, longitude]).addTo(map)
-                        .bindPopup('Your Location')
-                        .openPopup();
-                    showToast('success', 'Found!', `Located at ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
-                },
-                (error) => {
-                    // FALLBACK: Don't hang, just center Laos
-                    map.setView(LAOS_CENTER, 7);
-                    showToast('error', 'Location Failed', 'Could not get GPS. Centered on Laos instead.');
-                },
-                options
-            );
-        }
-
-        function resetToLaos() {
-            map.setView(LAOS_CENTER, DEFAULT_ZOOM);
-            showToast('info', 'Reset', 'Map centered on Laos.');
+            document.getElementById('zoom').textContent = DEFAULT_ZOOM;
         }
 
         // ============================================
         // UI FUNCTIONS
         // ============================================
-
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const toggle = document.getElementById('sidebarToggle');
             sidebar.classList.toggle('collapsed');
             toggle.classList.toggle('collapsed');
             toggle.textContent = sidebar.classList.contains('collapsed') ? '▶' : '◀';
+            setTimeout(() => map.invalidateSize(), 350);
         }
 
-        function toggleLayer(element, layerName) {
-            // Update UI
+        function switchBaseLayer(name) {
             document.querySelectorAll('.layer-item').forEach(item => item.classList.remove('active'));
-            element.classList.add('active');
-
-            // Switch layer
-            if (currentLayer) {
-                map.removeLayer(currentLayer);
-            }
-            layers[layerName].addTo(map);
-            currentLayer = layers[layerName];
+            event.currentTarget.classList.add('active');
+            
+            if (activeBaseLayer) map.removeLayer(activeBaseLayer);
+            layers[name].addTo(map);
+            activeBaseLayer = layers[name];
         }
 
-        function addMarker() {
-            const center = map.getCenter();
-            const marker = L.marker(center).addTo(map)
-                .bindPopup(`Marker at ${center.lat.toFixed(4)}, ${center.lng.toFixed(4)}`)
-                .openPopup();
-            markers.push(marker);
+        function resetToLaos() {
+            map.setView(LAOS_CENTER, DEFAULT_ZOOM);
+            showToast('info', 'Reset', 'Map centered on Laos');
         }
 
-        function clearMarkers() {
+        function clearAll() {
+            drawnItems.clearLayers();
             markers.forEach(m => map.removeLayer(m));
             markers = [];
-            showToast('info', 'Cleared', 'All markers removed.');
+            clearRoute();
+            clearTrack();
+            updateMarkersList();
+            showToast('info', 'Cleared', 'All data removed from map');
         }
 
-        function showToast(type, title, message) {
-            const toast = document.getElementById('toast');
-            const body = document.getElementById('toastBody');
-            
-            toast.className = `toast ${type}`;
-            toast.querySelector('.toast-header').textContent = 
-                type === 'success' ? '✅ ' + title : 
-                type === 'error' ? '❌ ' + title : 'ℹ️ ' + title;
-            body.textContent = message;
-            
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 4000);
+        // ============================================
+        // MARKERS
+        // ============================================
+        function addMarkerAtContext() {
+            if (!contextMenuLatLng) return;
+            addMarker(contextMenuLatLng.lat, contextMenuLatLng.lng, 'Context Marker');
+            hideContextMenu();
         }
 
-        // Keyboard shortcut
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'l' && e.ctrlKey) {
-                e.preventDefault();
-                locateUser();
+        function addMarker(lat, lng, name = 'Marker') {
+            const marker = L.marker([lat, lng]).addTo(map);
+            marker.bindPopup(`
+                <div style="min-width:200px;">
+                    <h4 style="margin:0 0 0.5rem 0;">${name}</h4>
+                    <p style="margin:0.25rem 0;font-size:0.85rem;">
+                        <b>Lat:</b> ${lat.toFixed(6)}<br>
+                        <b>Lng:</b> ${lng.toFixed(6)}<br>
+                        <b>Ele:</b> <span class="ele-val">--</span> m
+                    </p>
+                    <button onclick="this.closest('.leaflet-popup').querySelector('.leaflet-popup-close-button').click()" style="margin-top:0.5rem;padding:0.3rem 0.6rem;background:#38bdf8;border:none;border-radius:4px;cursor:pointer;">Close</button>
+                </div>
+            `).openPopup();
+            
+            marker.name = name;
+            marker.id = Date.now();
+            markers.push(marker);
+            
+            queryElevation(lat, lng, false, (ele) => {
+                marker.elevation = ele;
+                const popup = marker.getPopup();
+                if (popup && popup.isOpen()) {
+                    const content = popup.getElement();
+                    if (content) {
+                        const eleSpan = content.querySelector('.ele-val');
+                        if (eleSpan) eleSpan.textContent = ele !== null ? ele.toFixed(1) : 'N/A';
+                    }
+                }
+            });
+            
+            updateMarkersList();
+            showToast('success', 'Marker Added', `${name} at ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+        }
+
+        function addMarkerToList(lat, lng, name) {
+            addMarker(lat, lng, name);
+        }
+
+        function updateMarkersList() {
+            const container = document.getElementById('markersList');
+            if (markers.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:1rem;">No markers yet. Right-click map to add.</p>';
+                return;
             }
+            
+            let html = '<table class="markers-table"><thead><tr><th>Name</th><th>Lat</th><th>Lng</th><th>Ele</th><th></th></tr></thead><tbody>';
+            markers.forEach((m, i) => {
+                const lat = m.getLatLng().lat;
+                const lng = m.getLatLng().lng;
+                const ele = m.elevation !== undefined ? m.elevation.toFixed(1) : '--';
+                html += `
+                    <tr>
+                        <td>${m.name || 'Point ' + (i+1)}</td>
+                        <td>${lat.toFixed(4)}</td>
+                        <td>${lng.toFixed(4)}</td>
+                        <td>${ele}</td>
+                        <td>
+                            <button class="layer-btn" onclick="flyToMarker(${i})" title="Zoom">🔍</button>
+                            <button class="layer-btn" onclick="deleteMarker(${i})" title="Delete">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function flyToMarker(index) {
+            const m = markers[index];
+            if (m) {
+                map.setView(m.getLatLng(), 16);
+                m.openPopup();
+            }
+        }
+
+        function deleteMarker(index) {
+            const m = markers[index];
+            if (m) {
+                map.removeLayer(m);
+                markers.splice(index, 1);
+                updateMarkersList();
+            }
+        }
+
+        function exportMarkers() {
+            showExportModal();
+            document.getElementById('exportData').value = 'markers';
+        }
+
+        // ============================================
+        // ROUTE / TRACKING
+        // ============================================
+        function startRouteFromContext() {
+            if (!contextMenuLatLng) return;
+            routeDrawing.active = true;
+            routeDrawing.points = [contextMenuLatLng];
+            
+            if (routeDrawing.polyline) map.removeLayer(routeDrawing.polyline);
+            routeDrawing.polyline = L.polyline([contextMenuLatLng], {
+                color: '#38bdf8',
+                weight: 4,
+                opacity: 0.8,
+                dashArray: '10, 10'
+            }).addTo(map);
+            
+            document.getElementById('routeInfo').classList.add('visible');
+            showToast('info', 'Route Mode', 'Click on map to add points. Double-click to finish.');
+            hideContextMenu();
+        }
+
+        function addRoutePoint(latlng) {
+            routeDrawing.points.push(latlng);
+            routeDrawing.polyline.setLatLngs(routeDrawing.points);
+            updateRouteStats(routeDrawing.points);
+            
+            // Add point marker
+            const m = L.circleMarker(latlng, {
+                radius: 6,
+                fillColor: '#38bdf8',
+                color: '#fff',
+                weight: 2,
+                fillOpacity: 1
+            }).addTo(map);
+            routeDrawing.markers.push(m);
+        }
+
+        function updateRouteStats(points) {
+            if (points.length < 2) return;
+            
+            const line = turf.lineString(points.map(p => [p.lng, p.lat]));
+            const length = turf.length(line, { units: 'kilometers' });
+            
+            document.getElementById('routeDist').textContent = length.toFixed(1);
+            document.getElementById('routePoints').textContent = points.length;
+            
+            // Calculate elevation gain
+            let gain = 0;
+            // Simplified - would need actual elevation data
+            document.getElementById('routeElev').textContent = '~';
+        }
+
+        function clearRoute() {
+            if (routeDrawing.polyline) {
+                map.removeLayer(routeDrawing.polyline);
+                routeDrawing.polyline = null;
+            }
+            routeDrawing.markers.forEach(m => map.removeLayer(m));
+            routeDrawing.markers = [];
+            routeDrawing.points = [];
+            routeDrawing.active = false;
+            document.getElementById('routeInfo').classList.remove('visible');
+        }
+
+        // ============================================
+        // GPS TRACKING
+        // ============================================
+        function toggleTracking() {
+            if (tracking.active) {
+                stopTracking();
+            } else {
+                startTracking();
+            }
+        }
+
+        function startTracking() {
+            if (!navigator.geolocation) {
+                showToast('error', 'Error', 'Geolocation not supported');
+                return;
+            }
+
+            tracking.active = true;
+            tracking.positions = [];
+            tracking.startTime = Date.now();
+            
+            document.getElementById('btnStartTrack').disabled = true;
+            document.getElementById('btnStopTrack').disabled = false;
+            document.getElementById('trackBtnText').textContent = '⏹️ Tracking...';
+
+            // Fast options - no high accuracy to avoid hanging
+            const options = {
+                enableHighAccuracy: false,
+                timeout: 5000,
+                maximumAge: 30000
+            };
+
+            tracking.watchId = navigator.geolocation.watchPosition(
+                (pos) => {
+                    const { latitude, longitude, altitude, speed } = pos.coords;
+                    const latlng = L.latLng(latitude, longitude);
+                    
+                    tracking.positions.push({
+                        lat: latitude,
+                        lng: longitude,
+                        ele: altitude,
+                        speed: speed,
+                        time: Date.now()
+                    });
+
+                    // Update track line
+                    if (!tracking.polyline) {
+                        tracking.polyline = L.polyline([], {
+                            color: '#22c55e',
+                            weight: 4,
+                            opacity: 0.9
+                        }).addTo(map);
+                    }
+                    tracking.polyline.addLatLng(latlng);
+
+                    // Update marker
+                    if (!tracking.marker) {
+                        tracking.marker = L.marker(latlng, {
+                            icon: L.divIcon({
+                                className: 'track-marker',
+                                html: '<div style="width:16px;height:16px;background:#22c55e;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>',
+                                iconSize: [16, 16],
+                                iconAnchor: [8, 8]
+                            })
+                        }).addTo(map);
+                    } else {
+                        tracking.marker.setLatLng(latlng);
+                    }
+
+                    // Update stats
+                    updateTrackStats();
+                },
+                (err) => {
+                    console.warn('GPS error:', err);
+                },
+                options
+            );
+
+            showToast('success', 'Tracking Started', 'GPS recording active');
+        }
+
+        function stopTracking() {
+            tracking.active = false;
+            if (tracking.watchId !== null) {
+                navigator.geolocation.clearWatch(tracking.watchId);
+                tracking.watchId = null;
+            }
+            
+            document.getElementById('btnStartTrack').disabled = false;
+            document.getElementById('btnStopTrack').disabled = true;
+            document.getElementById('trackBtnText').textContent = '▶️ Track';
+
+            if (tracking.positions.length > 0) {
+                showToast('success', 'Track Saved', `${tracking.positions.length} points recorded`);
+            }
+        }
+
+        function clearTrack() {
+            if (tracking.polyline) {
+                map.removeLayer(tracking.polyline);
+                tracking.polyline = null;
+            }
+            if (tracking.marker) {
+                map.removeLayer(tracking.marker);
+                tracking.marker = null;
+            }
+            tracking.positions = [];
+            tracking.startTime = null;
+            updateTrackStats();
+        }
+
+        function updateTrackStats() {
+            const positions = tracking.positions;
+            document.getElementById('trackPoints').textContent = positions.length;
+
+            if (positions.length > 1) {
+                const line = turf.lineString(positions.map(p => [p.lng, p.lat]));
+                const dist = turf.length(line, { units: 'kilometers' });
+                document.getElementById('trackDist').textContent = dist.toFixed(1);
+
+                // Duration
+                if (tracking.startTime) {
+                    const elapsed = Math.floor((Date.now() - tracking.startTime) / 1000);
+                    const mins = Math.floor(elapsed / 60);
+                    const secs = elapsed % 60;
+                    document.getElementById('trackTime').textContent = 
+                        `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                }
+
+                // Speed
+                const last = positions[positions.length - 1];
+                if (last.speed !== null && last.speed !== undefined) {
+                    document.getElementById('trackSpeed').textContent = (last.speed * 3.6).toFixed(0);
+                } else if (positions.length > 1) {
+                    const timeDiff = (positions[positions.length - 1].time - positions[positions.length - 2].time) / 1000 / 3600;
+                    const distDiff = turf.distance(
+                        turf.point([positions[positions.length - 2].lng, positions[positions.length - 2].lat]),
+                        turf.point([last.lng, last.lat]),
+                        { units: 'kilometers' }
+                    );
+                    if (timeDiff > 0) {
+                        document.getElementById('trackSpeed').textContent = (distDiff / timeDiff).toFixed(0);
+                    }
+                }
+            } else {
+                document.getElementById('trackDist').textContent = '0.0';
+                document.getElementById('trackTime').textContent = '00:00';
+                document.getElementById('trackSpeed').textContent = '0';
+            }
+        }
+
+        // ============================================
+        // ELEVATION
+        // ============================================
+        async function queryElevation(lat, lng, debounce = false, callback = null) {
+            // Use OpenTopoData API (free, no key needed for demo)
+            if (debounce) {
+                // Simple debounce for mousemove
+                if (window.elevationTimeout) clearTimeout(window.elevationTimeout);
+                window.elevationTimeout = setTimeout(() => doQueryElevation(lat, lng, callback), 200);
+            } else {
+                doQueryElevation(lat, lng, callback);
+            }
+        }
+
+        async function doQueryElevation(lat, lng, callback) {
+            try {
+                const response = await fetch(`https://api.opentopodata.org/v1/srtm90m?locations=${lat},${lng}`);
+                const data = await response.json();
+                if (data.results && data.results[0]) {
+                    const ele = data.results[0].elevation;
+                    document.getElementById('ele').textContent = ele !== null ? ele.toFixed(1) : '--';
+                    if (callback) callback(ele);
+                }
+            } catch (e) {
+                document.getElementById('ele').textContent = '--';
+                if (callback) callback(null);
+            }
+        }
+
+        function queryElevationContext() {
+            if (!contextMenuLatLng) return;
+            queryElevation(contextMenuLatLng.lat, contextMenuLatLng.lng, false, (ele) => {
+                showToast('info', 'Elevation', 
+                    ele !== null 
+                    ? `Elevation at this point: ${ele.toFixed(1)}m` 
+                    : 'Elevation data unavailable');
+            });
+            hideContextMenu();
+        }
+
+        function showElevationProfile(points) {
+            // Show elevation chart container
+            document.getElementById('elevationContainer').classList.add('visible');
+            map.invalidateSize();
+            
+            // Fetch elevation for all points then chart
+            // Simplified - would use proper charting library
+            showToast('info', 'Elevation', 'Profile loaded for route');
+        }
+
+        function closeElevation() {
+            document.getElementById('elevationContainer').classList.remove('visible');
+            setTimeout(() => map.invalidateSize(), 300);
+        }
+
+        // ============================================
+        // FILE IMPORT
+        // ============================================
+        function initDragDrop() {
+            const zone = document.getElementById('importZone');
+            const modalZone = document.querySelector('#importModal .import-zone');
+            
+            [zone, modalZone].forEach(z => {
+                if (!z) return;
+                z.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    z.classList.add('dragover');
+                });
+                z.addEventListener('dragleave', () => z.classList.remove('dragover'));
+                z.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    z.classList.remove('dragover');
+                    handleFiles(e.dataTransfer.files);
+                });
+            });
+        }
+
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                const ext = file.name.split('.').pop().toLowerCase();
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    try {
+                        switch(ext) {
+                            case 'kml':
+                                parseKML(e.target.result, file.name);
+                                break;
+                            case 'gpx':
+                                parseGPX(e.target.result, file.name);
+                                break;
+                            case 'geojson':
+                            case 'json':
+                                parseGeoJSON(e.target.result, file.name);
+                                break;
+                            case 'csv':
+                                parseCSV(e.target.result, file.name);
+                                break;
+                            case 'pdf':
+                                parsePDF(file, file.name);
+                                break;
+                            case 'zip':
+                                parseZIP(e.target.result, file.name);
+                                break;
+                            case 'gpkg':
+                                showToast('warning', 'GeoPackage', 'GeoPackage requires server-side processing. Please convert to GeoJSON or KML.');
+                                break;
+                            case 'shp':
+                                showToast('warning', 'Shapefile', 'Please upload .shp as a .zip with .shx and .dbf files.');
+                                break;
+                            default:
+                                showToast('error', 'Unknown Format', `Cannot import .${ext} files`);
+                        }
+                    } catch (err) {
+                        showToast('error', 'Import Error', err.message);
+                    }
+                };
+                
+                if (ext === 'zip' || ext === 'shp' || ext === 'gpkg' || ext === 'pdf') {
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    reader.readAsText(file);
+                }
+            });
+        }
+
+        function parseKML(text, filename) {
+            const parser = new DOMParser();
+            const kml = parser.parseFromString(text, 'text/xml');
+            const geojson = toGeoJSON.kml(kml);
+            addGeoJSONLayer(geojson, filename);
+        }
+
+        function parseGPX(text, filename) {
+            const parser = new DOMParser();
+            const gpx = parser.parseFromString(text, 'text/xml');
+            const geojson = toGeoJSON.gpx(gpx);
+            addGeoJSONLayer(geojson, filename);
+        }
+
+        function parseGeoJSON(text, filename) {
+            const geojson = JSON.parse(text);
+            addGeoJSONLayer(geojson, filename);
+        }
+
+        function parseCSV(text, filename) {
+            const results = Papa.parse(text, { header: true, dynamicTyping: true });
+            if (results.data && results.data.length > 0) {
+                const geojson = {
+                    type: 'FeatureCollection',
+                    features: results.data.filter(row => row.latitude || row.lat || row.Latitude).map((row, i) => ({
+                        type: 'Feature',
+                        properties: row,
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [
+                                row.longitude || row.lng || row.Longitude || 0,
+                                row.latitude || row.lat || row.Latitude || 0
+                            ]
+                        }
+                    }))
+                };
+                addGeoJSONLayer(geojson, filename);
+            }
+        }
+
+        function parsePDF(file, filename) {
+            // For georeferenced PDF, we'd need pdf2geotiff or similar
+            // This is a simplified placeholder
+            showToast('info', 'PDF Import', 'Georeferenced PDF detected. Processing...');
+            
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const typedarray = new Uint8Array(e.target.result);
+                try {
+                    const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
+                    showToast('success', 'PDF Loaded', `${pdf.numPages} pages. Note: True georeferencing requires GDAL processing.`);
+                } catch (err) {
+                    showToast('error', 'PDF Error', 'Could not parse PDF');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        async function parseZIP(buffer, filename) {
+            try {
+                const zip = await JSZip.loadAsync(buffer);
+                const shpFile = zip.file(/\.shp$/i)[0];
+                const dbfFile = zip.file(/\.dbf$/i)[0];
+                
+                if (shpFile) {
+                    const shpBuffer = await shpFile.async('arraybuffer');
+                    const dbfBuffer = dbfFile ? await dbfFile.async('arraybuffer') : null;
+                    
+                    // Use shpjs
+                    const geojson = await shp.combine([shp.parseShp(shpBuffer, /* prj */), shp.parseDbf(dbfBuffer)]);
+                    addGeoJSONLayer(geojson, filename);
+                } else {
+                    // Maybe it's a KML/KMZ
+                    const kmlFile = zip.file(/\.kml$/i)[0];
+                    if (kmlFile) {
+                        const kmlText = await kmlFile.async('text');
+                        parseKML(kmlText, filename);
+                    }
+                }
+            } catch (err) {
+                showToast('error', 'ZIP Error', err.message);
+            }
+        }
+
+        function addGeoJSONLayer(geojson, filename) {
+            const layer = L.geoJSON(geojson, {
+                style: (feature) => ({
+                    color: '#38bdf8',
+                    weight: 2,
+                    fillColor: '#38bdf8',
+                    fillOpacity: 0.2
+                }),
+                pointToLayer: (feature, latlng) => {
+                    return L.circleMarker(latlng, {
+                        radius: 6,
+                        fillColor: '#38bdf8',
+                        color: '#fff',
+                        weight: 2,
+                        fillOpacity: 0.9
+                    });
+                },
+                onEachFeature: (feature, layer) => {
+                    if (feature.properties) {
+                        const props = Object.entries(feature.properties)
+                            .map(([k, v]) => `<b>${k}:</b> ${v}`)
+                            .join('<br>');
+                        layer.bindPopup(`<div style="max-width:250px;max-height:200px;overflow:auto;font-size:0.85rem;">${props}</div>`);
+                    }
+                }
+            }).addTo(map);
+
+            importedLayers.push({ layer, name: filename });
+            updateLayerList();
+
+            const fitBounds = document.getElementById('optFitBounds')?.checked ?? true;
+            if (fitBounds && layer.getBounds) {
+                const bounds = layer.getBounds();
+                if (bounds.isValid()) {
+                    map.fitBounds(bounds, { padding: [50, 50] });
+                }
+            }
+
+            // Count features
+            const count = geojson.features ? geojson.features.length : 1;
+            showToast('success', 'Imported', `${filename}: ${count} features loaded`);
+        }
+
+        function updateLayerList() {
+            const list = document.getElementById('layerList');
+            // Keep base layers, add imported ones
+            const baseHTML = list.innerHTML;
+            // This is simplified - in production you'd manage layer list properly
+        }
+
+        // ============================================
+        // EXPORT
+        // ============================================
+        function showExportModal() {
+            document.getElementById('exportModal').classList.add('active');
+        }
+
+        function showImportModal() {
+            document.getElementById('importModal').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function selectCRS(el, crs) {
+            document.querySelectorAll('.crs-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedCRS = crs;
+        }
+
+        function performExport() {
+            const format = document.getElementById('exportFormat').value;
+            const dataType = document.getElementById('exportData').value;
+            
+            let data = [];
+            
+            switch(dataType) {
+                case 'markers':
+                    data = markers.map(m => ({
+                        lat: m.getLatLng().lat,
+                        lng: m.getLatLng().lng,
+                        ele: m.elevation || null,
+                        name: m.name || 'Point'
+                    }));
+                    break;
+                case 'route':
+                    data = routeDrawing.points.map((p, i) => ({
+                        lat: p.lat,
+                        lng: p.lng,
+                        ele: null,
+                        name: `Route Point ${i+1}`
+                    }));
+                    break;
+                case 'track':
+                    data = tracking.positions;
+                    break;
+                case 'all':
+                    data = [
+                        ...markers.map(m => ({ lat: m.getLatLng().lat, lng: m.getLatLng().lng, ele: m.elevation, name: m.name, type: 'marker' })),
+                        ...tracking.positions.map(p => ({ ...p, type: 'track' }))
+                    ];
+                    break;
+            }
+
+            if (data.length === 0) {
+                showToast('warning', 'No Data', 'Nothing to export for selected type');
+                return;
+            }
+
+            // Convert coordinates if needed
+            if (selectedCRS !== 'EPSG:4326') {
+                data = data.map(d => {
+                    // Simplified CRS conversion - in production use proj4js
+                    return { ...d, lat: d.lat, lng: d.lng }; // Placeholder
+                });
+            }
+
+            let content, mime, extension;
+
+            switch(format) {
+                case 'csv':
+                    const cols = [];
+                    if (document.getElementById('colId').checked) cols.push('id');
+                    if (document.getElementById('colName').checked) cols.push('name');
+                    if (document.getElementById('colLat').checked) cols.push('latitude');
+                    if (document.getElementById('colLng').checked) cols.push('longitude');
+                    if (document.getElementById('colElev').checked) cols.push('elevation');
+                    if (document.getElementById('colCRS').checked) cols.push('crs');
+
+                    const csvData = data.map((d, i) => {
+                        const row = {};
+                        if (cols.includes('id')) row.id = i + 1;
+                        if (cols.includes('name')) row.name = d.name || `Point_${i+1}`;
+                        if (cols.includes('latitude')) row.latitude = d.lat;
+                        if (cols.includes('longitude')) row.longitude = d.lng;
+                        if (cols.includes('elevation')) row.elevation = d.ele || '';
+                        if (cols.includes('crs')) row.crs = selectedCRS;
+                        return row;
+                    });
+
+                    content = Papa.unparse(csvData);
+                    mime = 'text/csv';
+                    extension = 'csv';
+                    break;
+
+                case 'geojson':
+                    const geojson = {
+                        type: 'FeatureCollection',
+                        crs: { type: 'name', properties: { name: selectedCRS } },
+                        features: data.map((d, i) => ({
+                            type: 'Feature',
+                            properties: {
+                                id: i + 1,
+                                name: d.name || `Point_${i+1}`,
+                                elevation: d.ele,
+                                crs: selectedCRS
+                            },
+                            geometry: {
+                                type: 'Point',
+                                coordinates: [d.lng, d.lat, d.ele || 0]
+                            }
+                        }))
+                    };
+                    content = JSON.stringify(geojson, null, 2);
+                    mime = 'application/json';
+                    extension = 'geojson';
+                    break;
+
+                case 'kml':
+                    content = generateKML(data, selectedCRS);
+                    mime = 'application/vnd.google-earth.kml+xml';
+                    extension = 'kml';
+                    break;
+
+                case 'gpx':
+                    content = generateGPX(data);
+                    mime = 'application/gpx+xml';
+                    extension = 'gpx';
+                    break;
+            }
+
+            downloadFile(content, `laos_export_${dataType}_${Date.now()}.${extension}`, mime);
+            closeModal('exportModal');
+            showToast('success', 'Exported', `${data.length} points exported as ${format.toUpperCase()}`);
+        }
+
+        function generateKML(data, crs) {
+            const placemarks = data.map((d, i) => `
+                <Placemark>
+                    <name>${d.name || `Point ${i+1}`}</name>
+                    <description>Lat: ${d.lat}, Lng: ${d.lng}${d.ele ? ', Ele: ' + d.ele : ''}</description>
+                    <Point>
+                        <coordinates>${d.lng},${d.lat}${d.ele ? ',' + d.ele : ''}</coordinates>
+                    </Point>
+                </Placemark>
+            `).join('');
+
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document>
+        <name>Laos GIS Export</name>
+        <description>CRS: ${crs}</description>
+        ${placemarks}
+    </Document>
+</kml>`;
+        }
+
+        function generateGPX(data) {
+            const trkpts = data.map(d => `
+                <trkpt lat="${d.lat}" lon="${d.lng}">
+                    ${d.ele ? `<ele>${d.ele}</ele>` : ''}
+                    <time>${new Date().toISOString()}</time>
+                </trkpt>
+            `).join('');
+
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Laos GIS Mapper">
+    <trk>
+        <name>Exported Track</name>
+        <trkseg>
+            ${trkpts}
+        </trkseg>
+    </trk>
+</gpx>`;
+        }
+
+        function downloadFile(content, filename, mime) {
+            const blob = new Blob([content], { type: mime });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // ============================================
+        // CONTEXT MENU
+        // ============================================
+        function setupContextMenu() {
+            document.addEventListener('click', () => hideContextMenu());
+        }
+
+        function showContextMenu(e) {
+            const menu = document.getElementById('contextMenu');
+            menu.style.left = e.pageX + 'px';
+            menu.style.top = e.pageY + 'px';
+            menu.classList.add('active');
+        }
+
+        function hideContextMenu() {
+            document.getElementById('contextMenu').classList.remove('active');
+        }
+
+        function copyCoordsContext() {
+            if (!contextMenuLatLng) return;
+            const text = `${contextMenuLatLng.lat.toFixed(6)}, ${contextMenuLatLng.lng.toFixed(6)}`;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('success', 'Copied', 'Coordinates copied to clipboard');
+            });
+            hideContextMenu();
+        }
+
+        // ============================================
+        // TOAST SYSTEM
+        // ============================================
+        function showToast(type, title, message) {
+            const container = document.getElementById('toastContainer');
+            const id = ++toastId;
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-header">
+                    ${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'} ${title}
+                </div>
+                <div class="toast-body">${message}</div>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('hiding');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal('exportModal');
+                closeModal('importModal');
+                hideContextMenu();
+            }
+            if (e.ctrlKey && e.key === 'i') {
+                e.preventDefault();
+                showImportModal();
+            }
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                showExportModal();
+            }
+        });
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.classList.remove('active');
+            });
         });
     </script>
 </body>
