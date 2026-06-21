@@ -1634,6 +1634,19 @@
     <!-- Leaflet SmoothWheelZoom Plugin for smooth Google Maps-like zooming -->
     <script src="https://cdn.jsdelivr.net/gh/mutsuyuki/Leaflet.SmoothWheelZoom@master/SmoothWheelZoom.js"></script>
 
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    <!-- Theme color for browser UI theming -->
+    <meta name="theme-color" content="#0f172a">
+    <!-- Apple Touch Icon fallback -->
+    <link rel="apple-touch-icon" href="./icons/icon-192x192.png">
+    <!-- Apple mobile web app capable -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Laos GIS">
+
+<base target="_blank">
 </head>
 <body>
 
@@ -4282,5 +4295,87 @@
             });
         });
     </script>
+
+    <!-- ============================================
+         SERVICE WORKER REGISTRATION (PWA)
+         ============================================ -->
+    <script>
+        (function() {
+            'use strict';
+
+            if (!('serviceWorker' in navigator)) {
+                console.log('[PWA] Service Worker not supported');
+                return;
+            }
+
+            // Register service worker after page load to not block rendering
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js', { 
+                    scope: './',
+                    updateViaCache: 'imports' // Always check for updated imports
+                })
+                .then(function(registration) {
+                    console.log('[PWA] Service Worker registered:', registration.scope);
+
+                    // Listen for updates
+                    registration.addEventListener('updatefound', function() {
+                        const newWorker = registration.installing;
+                        console.log('[PWA] Service Worker update found');
+
+                        newWorker.addEventListener('statechange', function() {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New content is available, show update prompt or auto-reload
+                                console.log('[PWA] New version available');
+
+                                // Optional: Auto-reload or show "Update Available" toast
+                                if (window.showToast) {
+                                    showToast('info', 'Update Available', 'New version ready. Refresh to update.');
+                                }
+
+                                // Optional: Force activate immediately
+                                newWorker.postMessage('skipWaiting');
+                            }
+                        });
+                    });
+                })
+                .catch(function(error) {
+                    console.error('[PWA] Service Worker registration failed:', error);
+                });
+            });
+
+            // Listen for controller changes (SW updated and activated)
+            navigator.serviceWorker.addEventListener('controllerchange', function() {
+                console.log('[PWA] New Service Worker activated, reloading...');
+                // Optional: window.location.reload();
+            });
+
+            // Handle app launched from installed PWA with action shortcuts
+            if (window.location.search) {
+                const params = new URLSearchParams(window.location.search);
+                const action = params.get('action');
+                if (action) {
+                    console.log('[PWA] Launched with action:', action);
+                    // Handle shortcut actions after app init
+                    window.addEventListener('app-ready', function() {
+                        switch(action) {
+                            case 'measure-distance':
+                                if (window.toggleMeasureMode) toggleMeasureMode('distance');
+                                break;
+                            case 'measure-area':
+                                if (window.toggleMeasureMode) toggleMeasureMode('area');
+                                break;
+                            case 'gps-track':
+                                if (window.startTracking) startTracking();
+                                break;
+                            case 'center-laos':
+                                if (window.resetToLaos) resetToLaos();
+                                break;
+                        }
+                    });
+                }
+            }
+        })();
+    </script>
+
 </body>
 </html>
