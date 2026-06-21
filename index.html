@@ -168,73 +168,6 @@
             font-weight: 600;
         }
 
-        /* --- CAMPUS SYMBOL (Top Right Corner) --- */
-        .compass-symbol {
-            position: fixed;
-            top: 8px;
-            right: 8px;
-            z-index: 10001;
-            width: 40px;
-            height: 40px;
-            background: var(--bg-secondary);
-            border: 2px solid var(--accent);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 2px 12px rgba(56, 189, 248, 0.3);
-        }
-
-        .compass-symbol:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 20px rgba(56, 189, 248, 0.5);
-        }
-
-        .compass-symbol svg {
-            width: 24px;
-            height: 24px;
-            fill: var(--accent);
-        }
-
-        .compass-tooltip {
-            position: absolute;
-            top: 50px;
-            right: 0;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 0.75rem;
-            min-width: 180px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-8px);
-            transition: all 0.2s;
-            pointer-events: none;
-        }
-
-        .compass-symbol:hover .compass-tooltip {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-            pointer-events: auto;
-        }
-
-        .compass-tooltip-title {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 0.25rem;
-        }
-
-        .compass-tooltip-text {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
-
         /* Desktop Toolbar */
         .toolbar {
             display: flex;
@@ -1388,23 +1321,7 @@
                 display: flex;
             }
             
-            /* Show GPS status bar on mobile */
-            .gps-status-bar.visible {
-                display: flex;
-            }
             
-            /* Adjust campus symbol position for mobile */
-            .compass-symbol {
-                top: 66px;
-                right: 12px;
-                width: 36px;
-                height: 36px;
-            }
-            
-            .compass-symbol svg {
-                width: 20px;
-                height: 20px;
-            }
         }
 
         /* Mobile specific adjustments */
@@ -1673,22 +1590,7 @@
         <div class="loader-bar"></div>
     </div>
 
-    <!-- COMPASS SYMBOL (Fixed Top Right) -->
-    <div class="compass-symbol" id="compassSymbol" title="Laos GIS Mapper Pro">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 24.024a11.25 11.25 0 0 0 2.943-22.11A1.5 1.5 0 0 0 13.5 0h-3a1.5 1.5 0 0 0-1.443 1.914A11.25 11.25 0 0 0 12 24.024zm9.75-11.25a9.75 9.75 0 1 1-19.5 0 9.75 9.75 0 0 1 19.5 0"/>
-            <path d="m10.41 11.16 7.425-4.245-4.245 7.425-7.424 4.245 4.242-7.425z" fill="var(--accent)"/>
-        </svg>
-        <div class="compass-tooltip">
-            <div class="compass-tooltip-title">🧭 Laos GIS Mapper Pro</div>
-            <div class="compass-tooltip-text">
-                Professional GIS mapping tool for Laos.<br>
-                Version 2.0 • Built with Leaflet
-            </div>
-        </div>
-    </div>
-
-    <!-- App -->
+        <!-- App -->
     <div id="app">
         <!-- Header -->
         <header class="header">
@@ -1851,6 +1753,10 @@
                             <div class="coord-row">
                                 <span class="coord-label">Heading</span>
                                 <span class="coord-value" id="gpsHeading">--</span>
+                            </div>
+                            <div class="coord-row">
+                                <span class="coord-label">Elevation</span>
+                                <span class="coord-value" id="gpsElev">--</span>
                             </div>
                         </div>
                     </div>
@@ -2371,6 +2277,7 @@
             }
             
             showToast('success', 'Ready', 'Laos GIS Mapper loaded. GPS auto-enabled on mobile.');
+            updateTracksList();
         }
 
         function isMobile() {
@@ -2503,31 +2410,37 @@
         }
 
         function handleGPSUpdate(position) {
-            const { latitude, longitude, accuracy, speed, heading } = position.coords;
-            gpsState.currentPosition = { lat: latitude, lng: longitude, accuracy, speed, heading };
-            
+            const { latitude, longitude, accuracy, speed, heading, altitude } = position.coords;
+            gpsState.currentPosition = { lat: latitude, lng: longitude, accuracy, speed, heading, altitude };
+
             // Update sidebar
             document.getElementById('gpsLat').textContent = latitude.toFixed(6);
             document.getElementById('gpsLng').textContent = longitude.toFixed(6);
             document.getElementById('gpsAccuracy').textContent = accuracy ? `±${accuracy.toFixed(0)}m` : '--';
             document.getElementById('gpsSpeed').textContent = speed ? `${(speed * 3.6).toFixed(1)} km/h` : '--';
             document.getElementById('gpsHeading').textContent = heading ? `${heading.toFixed(0)}°` : '--';
-            
+            document.getElementById('gpsElev').textContent = altitude ? `${altitude.toFixed(1)} m` : '--';
+
+            // Query elevation from API as fallback/verification
+            queryElevation(latitude, longitude, false, (ele) => {
+                if (ele !== null) {
+                    document.getElementById('gpsElev').textContent = `${ele.toFixed(1)} m`;
+                }
+            });
+
             // Update status
             updateGPSStatus('active', 'Active');
-            
+
             // Update mobile status bar
             updateGPSBar(latitude, longitude, accuracy);
-            
+
             // Update map marker
             updateGPSMapMarker(latitude, longitude, accuracy, heading);
-            
+
             // Update FAB
             const fab = document.getElementById('gpsFab');
             if (fab) fab.classList.add('active');
-        }
-
-        function updateGPSStatus(status, text) {
+        }function updateGPSStatus(status, text) {
             const badge = document.getElementById('gpsStatusBadge');
             const dot = document.getElementById('gpsStatusDot');
             const label = document.getElementById('gpsStatusText');
@@ -3564,8 +3477,8 @@
             document.getElementById('btnTrackToggle').classList.remove('active');
 
             if (tracking.positions.length > 0) {
-                // Save track to tracks array with metadata
-                tracks.push({
+                // Save track to tracks array with metadata and layer references
+                const savedTrack = {
                     id: Date.now(),
                     name: tracking.name || 'Track ' + new Date().toLocaleString(),
                     desc: tracking.desc || '',
@@ -3575,9 +3488,29 @@
                     endTime: Date.now(),
                     polyline: tracking.polyline,
                     marker: tracking.marker
-                });
-                showToast('success', 'Track Saved', `${tracking.name || 'Track'}: ${tracking.positions.length} points recorded`);
+                };
+                tracks.push(savedTrack);
+
+                // Reset tracking state for next recording (but keep layers on map via savedTrack)
+                tracking.positions = [];
+                tracking.startTime = null;
+                tracking.polyline = null;
+                tracking.marker = null;
+                tracking.name = '';
+                tracking.desc = '';
+                tracking.category = '';
+
+                // Update the tracks list in sidebar
+                updateTracksList();
+
+                showToast('success', 'Track Saved', `${savedTrack.name}: ${savedTrack.positions.length} points recorded`);
             }
+
+            // Reset track stats display
+            document.getElementById('trackDist').textContent = '0.0';
+            document.getElementById('trackTime').textContent = '00:00';
+            document.getElementById('trackSpeed').textContent = '0';
+            document.getElementById('trackPoints').textContent = '0';
 
             updateMobileMenuState();
         }function clearTrack() {
@@ -3591,10 +3524,11 @@
             }
             tracking.positions = [];
             tracking.startTime = null;
+            tracking.name = '';
+            tracking.desc = '';
+            tracking.category = '';
             updateTrackStats();
-        }
-
-        function updateTrackStats() {
+        }function updateTrackStats() {
             const positions = tracking.positions;
             document.getElementById('trackPoints').textContent = positions.length;
 
